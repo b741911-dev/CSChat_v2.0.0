@@ -163,6 +163,7 @@ app.get('/api/status', (req, res) => {
     res.json({
         message: 'CSChat 백엔드 서버가 정상적으로 작동 중입니다.',
         status: 'online',
+        uptime: process.uptime(),
         host: HOST,
         port: PORT,
         endpoints: {
@@ -172,6 +173,38 @@ app.get('/api/status', (req, res) => {
             peerjs: '/peerjs'
         }
     });
+});
+
+// 파일 안전 다운로드 API (크롬 Blob 보안 우회 및 파일명 강제 지정)
+app.get('/api/download', (req, res) => {
+    const fileUrl = req.query.url;
+    const fileName = req.query.name;
+
+    if (!fileUrl || !fileName) {
+        return res.status(400).send('Bad Request: Missing url or name');
+    }
+
+    // 도메인이 포함된 경우(절대 경로) 제거하고 앞의 '/'도 확인
+    let relativePath = fileUrl.replace(/^https?:\/\/[^\/]+/, '');
+
+    // 경로 트래버설 방지를 위한 간단 필터
+    if (relativePath.includes('..')) {
+        return res.status(403).send('Forbidden path');
+    }
+
+    const filePath = path.join(__dirname, 'public', relativePath);
+    const fs = require('fs');
+
+    if (fs.existsSync(filePath)) {
+        res.download(filePath, fileName, (err) => {
+            if (err) {
+                console.error('[Download API] Error:', err);
+                if (!res.headersSent) res.status(500).send('File transfer failed');
+            }
+        });
+    } else {
+        res.status(404).send('File not found');
+    }
 });
 
 /**
@@ -553,7 +586,17 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/admin/stats', async (req, res) => {
     try {
         const totalUsers = db.prepare('SELECT COUNT(*) as count FROM Users').get().count;
-        const onlineCount = onlineUsers.size;
+
+        let onlineCount = 0;
+        for (const uid of onlineUsers) {
+            const userExists = db.prepare('SELECT id FROM Users WHERE id = ?').get(uid);
+            if (userExists) {
+                onlineCount++;
+            } else {
+                onlineUsers.delete(uid); // DB에 없는 좀비 데이터 정리
+            }
+        }
+
         const today = getKSTDate().split(' ')[0];
         const todayMessages = db.prepare('SELECT COUNT(*) as count FROM Messages WHERE created_at LIKE ?').get(`${today}%`).count;
 
@@ -604,25 +647,7 @@ app.get('/api/admin/stats', async (req, res) => {
     }
 });
 
-/**
- * [GET] 시스템 로그 조회 API
- */
-app.get('/api/admin/logs', (req, res) => {
-    try {
-        const { limit = 50, offset = 0 } = req.query;
-        const logs = db.prepare(`
-            SELECT * FROM SystemLogs 
-            ORDER BY id DESC 
-            LIMIT ? OFFSET ?
-        `).all(limit, offset);
 
-        const total = db.prepare('SELECT COUNT(*) as count FROM SystemLogs').get().count;
-
-        res.json({ logs, total });
-    } catch (e) {
-        res.status(500).json({ error: '로그 조회 실패' });
-    }
-});
 
 /**
  * [POST] 사용자 비밀번호 초기화 (관리자용)
@@ -636,6 +661,29 @@ app.post('/api/admin/users/:id/reset-password', async (req, res) => {
         res.json({ success: true, message: '비밀번호가 1234로 초기화되었습니다.' });
     } catch (e) {
         res.status(500).json({ error: '초기화 실패' });
+    }
+});
+
+/**
+ * [POST] 사용자 비밀번호 직접 변경 (관리자용)
+ */
+app.post('/api/admin/users/:id/change-password', async (req, res) => {
+    const { id } = req.params;
+    const { newPassword } = req.body;
+    try {
+        if (!newPassword || newPassword.trim().length < 4) {
+            return res.status(400).json({ error: '비밀번호는 4자 이상이어야 합니다.' });
+        }
+        const hashedPassword = await bcrypt.hash(newPassword.trim(), SALT_ROUNDS);
+        const result = db.prepare('UPDATE Users SET password = ? WHERE id = ?').run(hashedPassword, id);
+        if (result.changes === 0) {
+            return res.status(404).json({ error: '사용자를 찾을 수 없습니다.' });
+        }
+        logSystem('INFO', 'ADMIN', `관리자에 의한 비밀번호 변경 (UserID: ${id})`, req);
+        res.json({ success: true, message: '비밀번호가 성공적으로 변경되었습니다.' });
+    } catch (e) {
+        console.error('[Admin API] Change Password Error:', e);
+        res.status(500).json({ error: '비밀번호 변경 실패: ' + e.message });
     }
 });
 
@@ -992,6 +1040,83 @@ app.get('/api/admin/rooms', (req, res) => {
 });
 
 /**
+ * [DELETE] 대화방 삭제 API (관리자용)
+ */
+app.delete('/api/admin/rooms/:id', (req, res) => {
+    const { id } = req.params;
+    try {
+        const room = db.prepare('SELECT room_identifier FROM ChatRooms WHERE id = ?').get(id);
+        if (!room) return res.status(404).json({ error: '방을 찾을 수 없습니다.' });
+
+        // 'global' 방 삭제 방지
+        if (room.room_identifier === 'global') {
+            return res.status(403).json({ error: '전체 대화방은 삭제할 수 없습니다.' });
+        }
+
+        db.transaction(() => {
+            // Foreign Key ON 상태에서 room_id 삭제 시 메시지와 참여자도 삭제되길 기대하지만, 명시적으로 수행 (방어적 코드)
+            db.prepare('DELETE FROM Messages WHERE room_id = ?').run(id);
+            db.prepare('DELETE FROM Participants WHERE room_id = ?').run(id);
+            db.prepare('DELETE FROM ChatRooms WHERE id = ?').run(id);
+        })();
+
+        console.log(chalk.red.bold(`[Admin API] 대화방 삭제 완료: ID ${id}`));
+        logSystem('WARN', 'ROOM', `대화방 삭제: ID ${id} (${room.room_identifier})`, req);
+        res.json({ success: true });
+    } catch (e) {
+        console.error('[Admin API] 대화방 삭제 오류:', e);
+        res.status(500).json({ error: '삭제 실패: ' + e.message });
+    }
+});
+
+/**
+ * [DELETE] 사용자 삭제 API (관리자용)
+ */
+app.delete('/api/admin/users/:id', (req, res) => {
+    const { id } = req.params;
+    try {
+        const user = db.prepare('SELECT username FROM Users WHERE id = ?').get(id);
+        if (!user) return res.status(404).json({ error: '사용자를 찾을 수 없습니다.' });
+
+        if (user.username === 'admin') {
+            return res.status(403).json({ error: '시스템 관리자 계정은 삭제할 수 없습니다.' });
+        }
+
+        db.transaction(() => {
+            // Foreign Key ON 상태이므로 연관 데이터(Participants, NoticeReads 등)는 자동 삭제됨
+            db.prepare('DELETE FROM Users WHERE id = ?').run(id);
+        })();
+
+        console.log(chalk.red.bold(`[Admin API] 사용자 삭제 완료: ${user.username} (ID: ${id})`));
+        logSystem('WARN', 'USER', `사용자 삭제: ${user.username} (ID: ${id})`, req);
+        res.json({ success: true });
+    } catch (e) {
+        console.error('[Admin API] 사용자 삭제 오류:', e);
+        res.status(500).json({ error: '삭제 실패: ' + e.message });
+    }
+});
+
+/**
+ * [POST] 대화방 메시지 초기화 API (관리자용)
+ */
+app.post('/api/admin/rooms/:id/clear', (req, res) => {
+    const { id } = req.params;
+    try {
+        const room = db.prepare('SELECT id FROM ChatRooms WHERE id = ?').get(id);
+        if (!room) return res.status(404).json({ error: '방을 찾을 수 없습니다.' });
+
+        db.prepare('DELETE FROM Messages WHERE room_id = ?').run(id);
+
+        console.log(chalk.yellow(`[Admin API] 대화방 메시지 초기화 완료: ID ${id}`));
+        logSystem('WARN', 'ROOM', `대화방 메시지 초기화: ID ${id}`, req);
+        res.json({ success: true });
+    } catch (e) {
+        console.error('[Admin API] 대화방 초기화 오류:', e);
+        res.status(500).json({ error: '초기화 실패: ' + e.message });
+    }
+});
+
+/**
  * 백업 실행 공통 로직
  */
 function performBackup(customPath, req = null) {
@@ -1143,6 +1268,41 @@ app.get('/api/admin/backups', (req, res) => {
         res.json(files);
     } catch (e) {
         res.status(500).json({ error: '백업 목록 조회 실패' });
+    }
+});
+
+/**
+ * [DELETE] 백업 파일 삭제 API
+ */
+app.delete('/api/admin/backups/:fileName', (req, res) => {
+    try {
+        const { fileName } = req.params;
+        const { backupPath } = req.query;
+        const targetDir = backupPath || path.join(__dirname, 'backups');
+        const fullPath = path.join(targetDir, fileName);
+
+        // 보안: 경로 이탈(path traversal) 방지 - 파일이 반드시 백업 디렉토리 내에 있어야 함
+        const resolvedDir = path.resolve(targetDir);
+        const resolvedFile = path.resolve(fullPath);
+        if (!resolvedFile.startsWith(resolvedDir)) {
+            return res.status(400).json({ error: '잘못된 파일 경로입니다.' });
+        }
+
+        // 파일명 형식 검증 (chat로 시작하고 .db로 끝나야 함)
+        if (!fileName.startsWith('chat') || !fileName.endsWith('.db')) {
+            return res.status(400).json({ error: '유효하지 않은 백업 파일 형식입니다.' });
+        }
+
+        if (!fs.existsSync(fullPath)) {
+            return res.status(404).json({ error: '백업 파일을 찾을 수 없습니다.' });
+        }
+
+        fs.unlinkSync(fullPath);
+        logSystem('INFO', 'BACKUP', `백업 파일 삭제: ${fileName}`, req);
+        res.json({ success: true, message: `${fileName} 파일이 삭제되었습니다.` });
+    } catch (e) {
+        console.error('[Admin API] Backup Delete Error:', e);
+        res.status(500).json({ error: '백업 파일 삭제 실패: ' + e.message });
     }
 });
 
@@ -1322,12 +1482,60 @@ app.post('/api/admin/system/mkdir', (req, res) => {
  */
 app.get('/api/admin/logs', (req, res) => {
     try {
-        const limit = parseInt(req.query.limit) || 50;
-        const logs = db.prepare('SELECT * FROM SystemLogs ORDER BY created_at DESC LIMIT ?').all(limit);
+        const { limit = 100, startDate, endDate } = req.query;
+        let query = 'SELECT * FROM SystemLogs';
+        const params = [];
+
+        if (startDate && endDate) {
+            query += ' WHERE created_at >= ? AND created_at <= ?';
+            // 데이터베이스의 created_at이 'YYYY-MM-DD HH:MM:SS' 형식이므로 종료일에 ' 23:59:59' 추가
+            params.push(`${startDate} 00:00:00`);
+            params.push(`${endDate} 23:59:59`);
+        }
+
+        query += ' ORDER BY created_at DESC LIMIT ?';
+        params.push(parseInt(limit));
+
+        const logs = db.prepare(query).all(...params);
         res.json({ logs });
     } catch (e) {
         console.error('[Admin API] Logs Error:', e);
         res.status(500).json({ error: '로그 조회 실패' });
+    }
+});
+
+/**
+ * [DELETE] 시스템 로그 삭제 API
+ * body: { ids: [1,2,3] }  → 선택 삭제
+ * body: { deleteAll: true } → 전체 삭제
+ */
+app.delete('/api/admin/logs', (req, res) => {
+    try {
+        const { ids, deleteAll } = req.body;
+
+        if (deleteAll === true) {
+            const result = db.prepare('DELETE FROM SystemLogs').run();
+            logSystem('INFO', 'SYSTEM', `시스템 로그 전체 삭제 (${result.changes}건)`, req);
+            return res.json({ success: true, deleted: result.changes });
+        }
+
+        if (!Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({ error: '삭제할 로그 ID를 지정해주세요.' });
+        }
+
+        // SQL injection 방지: 숫자만 허용
+        const safeIds = ids.map(id => parseInt(id)).filter(id => !isNaN(id));
+        if (safeIds.length === 0) {
+            return res.status(400).json({ error: '유효한 로그 ID가 없습니다.' });
+        }
+
+        const placeholders = safeIds.map(() => '?').join(',');
+        const result = db.prepare(`DELETE FROM SystemLogs WHERE id IN (${placeholders})`).run(...safeIds);
+        logSystem('INFO', 'SYSTEM', `시스템 로그 선택 삭제 (${result.changes}건, IDs: ${safeIds.join(',')})`, req);
+        res.json({ success: true, deleted: result.changes });
+    } catch (e) {
+        console.error('[Admin API] Log Delete Error:', e);
+        res.status(500).json({ error: '로그 삭제 실패: ' + e.message });
     }
 });
 
@@ -1920,6 +2128,14 @@ io.on('connection', (socket) => {
 
         if (isNaN(userId)) {
             console.error('[Socket] register_user 실패: 유효하지 않은 userId');
+            return;
+        }
+
+        // [수정] 데이터베이스에 존재하는 사용자인지 확인 (삭제된 사용자 방지)
+        const userExists = db.prepare('SELECT id FROM Users WHERE id = ?').get(userId);
+        if (!userExists) {
+            console.error(`[Socket] register_user 실패: DB에 존재하지 않는 userId (${userId})`);
+            socket.emit('force_logout', { message: '존재하지 않는 사용자입니다. 다시 로그인해주세요.' });
             return;
         }
 

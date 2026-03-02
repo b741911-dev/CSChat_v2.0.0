@@ -6,8 +6,9 @@ const bcrypt = require('bcryptjs');
 const dbPath = path.join(__dirname, 'chat.db');
 const db = new Database(dbPath);
 
-// 성능 향상을 위한 WAL 모드 설정
+// 성능 향상을 위한 WAL 모드 및 Foreign Key 활성화
 db.pragma('journal_mode = WAL');
+db.pragma('foreign_keys = ON');
 
 // 한국 시간 구하는 헬퍼 함수
 function getKSTDate(date = new Date()) {
