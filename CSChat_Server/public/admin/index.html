@@ -1,0 +1,2780 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSChat 관리자 - 대시보드</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="/logo.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        :root {
+            /* Theme Variables (Dark Default) */
+            --primary: #64ffda;
+            --accent: #4c66ff;
+            --bg: #0a192f;
+            --sidebar-bg: #0f172a;
+            --card-bg: rgba(17, 34, 64, 0.7);
+            --input-bg: rgba(0, 0, 0, 0.2);
+            --text: #e6f1ff;
+            --text-muted: #94a3b8;
+            --glass-border: rgba(100, 255, 218, 0.1);
+            --sidebar-width: 280px;
+            --header-bg: rgba(10, 25, 47, 0.8);
+            --notice-red: #ff4d4d;
+            --active-item-bg: linear-gradient(135deg, #4c66ff, #6d28d9);
+        }
+
+        [data-theme="light"] {
+            --primary: #4c66ff;
+            --accent: #6d28d9;
+            --bg: #f1f5f9;
+            --sidebar-bg: #1e293b;
+            --card-bg: #ffffff;
+            --input-bg: #f8fafc;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --glass-border: rgba(0, 0, 0, 0.08);
+            --header-bg: rgba(255, 255, 255, 0.95);
+            --notice-red: #e11d48;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        aside {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 0;
+            z-index: 100;
+        }
+
+        .side-header {
+            padding: 0 2rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .side-header img {
+            width: 40px;
+            border-radius: 8px;
+            -webkit-mask-image: radial-gradient(circle at center, black 60%, transparent 100%);
+            mask-image: radial-gradient(circle at center, black 60%, transparent 100%);
+        }
+
+        .side-header h2 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #64ffda, #e6f1ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        nav {
+            flex: 1;
+        }
+
+        .nav-item {
+            padding: 0.9rem 1.5rem;
+            margin: 0.4rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+        }
+
+        .nav-item.active {
+            background: var(--active-item-bg);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(76, 102, 255, 0.3);
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .side-footer {
+            padding: 2rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .logout-btn {
+            color: #ff5f56;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: 0.3s;
+        }
+
+        .logout-btn:hover {
+            opacity: 0.8;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            overflow: hidden;
+            padding: 2rem 3rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            background: var(--header-bg);
+            padding: 1.5rem;
+            margin: -2rem -3rem 2.5rem -3rem;
+            border-bottom: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            transition: 0.3s;
+        }
+
+        .theme-toggle:hover {
+            color: var(--primary);
+        }
+
+        .btn-notice {
+            background: rgba(255, 77, 77, 0.1);
+            color: var(--notice-red);
+            border: 1px solid var(--notice-red);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-notice:hover {
+            background: var(--notice-red);
+            color: white;
+        }
+
+        .page-title h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 0.2rem;
+        }
+
+        .page-title p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Views */
+        .view-content {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .view-content.active {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Dashboard Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-family: 'Courier New', monospace;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .chart-container {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            min-height: 300px;
+        }
+
+        .log-list {
+            background: rgba(2, 12, 27, 0.4);
+            border-radius: 12px;
+            padding: 1.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            overflow-y: auto;
+        }
+
+        .log-item {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(100, 255, 218, 0.05);
+            display: flex;
+            gap: 1rem;
+        }
+
+        .log-time {
+            color: var(--primary);
+        }
+
+        /* Monitoring Split Layout */
+        .monitoring-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 180px);
+            gap: 1.5rem;
+        }
+
+        .rooms-section {
+            flex: 1;
+            /* overflow-y: auto; Removed for split layout */
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .messages-section {
+            flex: 1;
+            overflow-y: auto;
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .room-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .room-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .room-card.active {
+            border-color: var(--primary);
+            background: rgba(100, 255, 218, 0.05);
+            box-shadow: 0 4px 15px rgba(100, 255, 218, 0.1);
+        }
+
+        /* Chat Bubbles */
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .chat-bubble {
+            max-width: 80%;
+            padding: 0.8rem 1.2rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            position: relative;
+        }
+
+        .bubble-other {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            border-bottom-left-radius: 2px;
+        }
+
+        .bubble-system {
+            align-self: center;
+            background: rgba(100, 255, 218, 0.1);
+            color: var(--primary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+        }
+
+        .bubble-info {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        /* Common Elements */
+        .glass-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn-action {
+            padding: 0.8rem 1.5rem;
+            border: 1px solid var(--primary);
+            background: transparent;
+            color: var(--primary);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+
+        .btn-action:hover {
+            background: rgba(100, 255, 218, 0.1);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(2, 12, 27, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            color: var(--text);
+        }
+
+        .modal-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.4rem;
+            color: var(--primary);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text);
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary);
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(100, 255, 218, 0.4);
+            border-radius: 10px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        /* Backup Explorer Tabs */
+        .explorer-tab {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .explorer-tab:hover {
+            color: var(--primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .explorer-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: rgba(100, 255, 218, 0.05);
+        }
+
+        .date-filter-btn {
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-muted);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .date-filter-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .date-filter-btn.active {
+            background: rgba(100, 255, 218, 0.1);
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 0 10px rgba(100, 255, 218, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <aside>
+        <div class="side-header">
+            <div
+                style="background: var(--primary); color: white; padding: 6px 12px; border-radius: 8px; font-weight: 900; font-size: 1.1rem; font-family: 'Inter';">
+                CS</div>
+            <h2>CSChat Admin</h2>
+        </div>
+        <nav>
+            <div class="nav-item active" onclick="switchView('dashboard')"><i
+                    class="fas fa-chart-line"></i><span>대시보드</span></div>
+            <div class="nav-item" onclick="switchView('logs')"><i class="fas fa-list-ul"></i><span>시스템 로그</span></div>
+            <div class="nav-item" onclick="switchView('users')"><i class="fas fa-users-gear"></i><span>사용자관리</span>
+            </div>
+            <div class="nav-item" onclick="switchView('monitoring')"><i class="fas fa-comment-dots"></i><span>대화방
+                    모니터링</span></div>
+            <div class="nav-item" onclick="switchView('notices')"><i class="fas fa-bullhorn"></i><span>긴급 공지 확인
+                    현황</span></div>
+            <div class="nav-item" onclick="switchView('backups')"><i class="fas fa-magnifying-glass"></i><span>검색 및
+                    백업</span></div>
+        </nav>
+        <div class="side-footer">
+            <a href="#" class="logout-btn" onclick="logout()"><i class="fas fa-right-from-bracket"></i> 로그아웃</a>
+        </div>
+    </aside>
+
+    <main>
+        <header>
+            <div class="page-title" style="display: flex; align-items: center; gap: 1rem;">
+                <h1 id="viewTitle" style="font-size: 1.4rem;">관리 대시보드</h1>
+                <div id="serverStatus"
+                    style="background: rgba(100, 255, 218, 0.1); color: #10b981; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; font-family: 'Inter';">
+                    SERVER ONLINE</div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-notice" onclick="showNoticeModal()"><i class="fas fa-bullhorn"></i> 긴급 공지 발송</button>
+                <div class="theme-toggle" onclick="toggleTheme()" id="themeIcon"><i class="fas fa-moon"></i></div>
+                <div
+                    style="display: flex; align-items: center; gap: 0.8rem; border-left: 1px solid var(--glass-border); padding-left: 1.5rem;">
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.9rem; font-weight: 700;">관리자님</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted);" id="adminLastLogin">마지막 접속: 로딩 중...
+                        </div>
+                    </div>
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=random"
+                        style="width: 32px; height: 32px; border-radius: 50%;">
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard View -->
+        <div id="dashboardView" class="view-content active">
+            <div class="stats-grid" style="flex-shrink: 0;">
+                <div class="stat-card">
+                    <div class="stat-label">전체 사용자</div>
+                    <div class="stat-value" id="totalUsers">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">현재 접속자</div>
+                    <div class="stat-value" id="onlineCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">오늘의 메시지</div>
+                    <div class="stat-value" id="todayMsgs">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">이미지/DB 사용량</div>
+                    <div class="stat-value" id="dbSize">0 MB</div>
+                </div>
+            </div>
+
+            <div class="chart-container" style="flex-shrink: 0; margin-bottom: 1rem; padding: 1.5rem;">
+                <h2 style="margin-bottom: 1rem; font-size: 1rem;">최근 트래픽 현황 (24시간)</h2>
+                <canvas id="trafficChart" height="90"></canvas>
+            </div>
+
+            <!-- Recent Logs (Restored Widget) - ONLY this part scrolls -->
+            <div class="glass-panel"
+                style="flex: 1; display: flex; flex-direction: column; padding: 1.2rem; min-height: 0; overflow: hidden;">
+                <div
+                    style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem; flex-shrink: 0;">
+                    <h2 style="font-size: 0.95rem;">시스템 로그 (최근)</h2>
+                    <button class="btn-action" onclick="loadDashboardLogs()"
+                        style="border:none; padding: 4px; font-size: 0.8rem;"><i class="fas fa-sync-alt"></i></button>
+                </div>
+                <div class="custom-scroll" id="dashboardLogList"
+                    style="flex: 1; overflow-y: scroll; display: flex; flex-direction: column; gap: 0.5rem; padding-right: 8px;">
+                    <!-- Logs injected here -->
+                    <div style="text-align: center; color: var(--text-muted); padding: 1.5rem; font-size: 0.8rem;">로그를
+                        불러오는 중...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create User Modal -->
+        <div id="createUserModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>신규 사용자 등록</h2>
+                    <button class="close-btn" onclick="closeCreateUserModal()">&times;</button>
+                </div>
+                <div class="form-group">
+                    <label>아이디 (ID)</label>
+                    <input type="text" id="newUsername" placeholder="사용할 아이디 입력">
+                </div>
+                <div class="form-group">
+                    <label>임시 비밀번호 (Password)</label>
+                    <input type="password" id="newPassword" placeholder="설정할 비밀번호 입력">
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button class="btn-action" onclick="createUser()"
+                        style="flex: 1; background: var(--primary); color: var(--bg);">등록하기</button>
+                    <button class="btn-action" onclick="closeCreateUserModal()"
+                        style="flex: 1; border-color: var(--text-muted); color: var(--text-muted);">취소</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Logs View -->
+        <div id="logsView" class="view-content">
+            <div class="glass-panel"
+                style="display: flex; flex-direction: column; height: calc(100vh - 180px); padding: 0; overflow: hidden;">
+                <div
+                    style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--glass-border); background: rgba(255,255,255,0.02);">
+                    <div
+                        style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <h2 style="font-size: 1.1rem; font-weight: 700;">시스템 로그 조회</h2>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <div style="display: flex; gap: 0.3rem;">
+                                <button class="date-filter-btn" onclick="setDateRange('today', this)">오늘</button>
+                                <button class="date-filter-btn" onclick="setDateRange('week', this)">1주일</button>
+                                <button class="date-filter-btn" onclick="setDateRange('month', this)">1개월</button>
+                                <button class="date-filter-btn" onclick="setDateRange('year', this)">1년</button>
+                            </div>
+                            <button class="btn-action" onclick="loadLogs()"><i class="fas fa-search"></i> 조회하기</button>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">조회 기간:</span>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <input type="date" id="logStartDate"
+                                style="background: var(--input-bg); border: 1px solid var(--glass-border); padding: 6px; border-radius: 6px; color: var(--text);">
+                            <span style="color: var(--text-muted);">~</span>
+                            <input type="date" id="logEndDate"
+                                style="background: var(--input-bg); border: 1px solid var(--glass-border); padding: 6px; border-radius: 6px; color: var(--text);">
+                        </div>
+                    </div>
+                </div>
+                <div class="custom-scroll" style="flex: 1; overflow-y: auto; padding: 0;">
+                    <table
+                        style="width: 100%; border-collapse: collapse; font-size: 0.85rem; font-family: 'Courier New', monospace;">
+                        <thead
+                            style="position: sticky; top: 0; background: var(--sidebar-bg); z-index: 10; font-weight: 800; color: #fff;">
+                            <tr>
+                                <th
+                                    style="padding: 1rem; text-align: left; border-bottom: 1px solid var(--glass-border);">
+                                    Time</th>
+                                <th
+                                    style="padding: 1rem; text-align: center; border-bottom: 1px solid var(--glass-border);">
+                                    Level</th>
+                                <th
+                                    style="padding: 1rem; text-align: center; border-bottom: 1px solid var(--glass-border);">
+                                    Category</th>
+                                <th
+                                    style="padding: 1rem; text-align: left; border-bottom: 1px solid var(--glass-border); width: 50%;">
+                                    Message</th>
+                                <th
+                                    style="padding: 1rem; text-align: left; border-bottom: 1px solid var(--glass-border);">
+                                    IP</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fullLogList">
+                            <!-- Logs injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users View (Shell) -->
+        <div id="usersView" class="view-content">
+            <div class="glass-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2>사용자 목록</h2>
+                    <button class="btn-action">✚ 신규 사용자 등록</button>
+                </div>
+                <!-- User table will go here -->
+                <p style="color: var(--text-muted)">사용자 관리 모듈을 불러오는 중입니다...</p>
+            </div>
+        </div>
+
+        <!-- Monitoring View -->
+        <div id="monitoringView" class="view-content">
+            <div class="monitoring-container">
+                <div class="rooms-section">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2 style="font-size: 1.1rem;">개설된 대화방 목록</h2>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);" id="roomCount">0 Rooms</span>
+                    </div>
+                    <div id="roomListContainer">
+                        <!-- Room cards will be injected here -->
+                    </div>
+                </div>
+                <div class="messages-section">
+                    <div id="activeRoomHeader"
+                        style="padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border); margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h2 id="currentRoomName" style="font-size: 1.1rem; color: var(--primary);">대화 리스트 (메시지 내역)
+                            </h2>
+                            <p id="currentRoomInfo" style="font-size: 0.8rem; color: var(--text-muted);">방을 선택하면 상세 대화
+                                데이터가
+                                여기에 표시됩니다.</p>
+                        </div>
+                        <div id="monitoringControls">
+                            <!-- Optional: Refresh button, etc. -->
+                        </div>
+                    </div>
+                    <div id="chatPreview" class="chat-container">
+                        <!-- Message bubbles will be injected here -->
+                        <div style="text-align: center; color: var(--text-muted); margin-top: 5rem;">
+                            <i class="fas fa-comment-slash"
+                                style="font-size: 2rem; display: block; margin-bottom: 1rem;"></i>
+                            대화방을 선택하여 대화 내용을 확인하세요.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emergency Notices View -->
+        <div id="noticesView" class="view-content">
+            <div class="glass-panel">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem;">
+                    <div>
+                        <h2 style="font-size: 1.2rem; font-weight: 800; color: var(--notice-red);">📢 긴급 공지 발송 내역 및 실시간
+                            확인 현황</h2>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">모든 채널에 발송된 공지사항의 가독 지표를
+                            실시간으로 모니터링합니다.</p>
+                    </div>
+                    <button class="btn-notice" onclick="showNoticeModal()"
+                        style="padding: 0.6rem 1.2rem; display: flex; align-items: center; gap: 0.6rem;">
+                        <i class="fas fa-plus"></i> 공지 발송
+                    </button>
+                </div>
+
+                <div id="noticeListContainer" class="custom-scroll"
+                    style="display: grid; gap: 1.2rem; max-height: calc(100vh - 280px); overflow-y: auto; padding: 0.5rem;">
+                    <!-- Notices will be loaded here -->
+                    <div style="text-align: center; padding: 4rem; color: var(--text-muted);">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i><br><br>공지 내역을 불러오는 중...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Backups View (Shell) -->
+        <div id="backupsView" class="view-content">
+            <div class="glass-panel">
+                <h2>데이터베이스 검색 및 백업</h2>
+                <p style="color: var(--text-muted)">백업 서비스 모듈을 불러오는 중입니다...</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Auth check
+        if (!sessionStorage.getItem('adminToken')) location.href = '/admin/login.html';
+
+        function switchView(viewId, updateHistory = true) {
+            // 1. Hide all views
+            document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
+            // 2. Show target view
+            const targetView = document.getElementById(viewId + 'View');
+            if (targetView) targetView.classList.add('active');
+
+            // 3. Update Sidebar Nav (explicitly by matching onclick attribute)
+            document.querySelectorAll('.nav-item').forEach(nav => {
+                nav.classList.remove('active');
+                // Check if this nav item calls switchView with the current viewId
+                if (nav.getAttribute('onclick') && nav.getAttribute('onclick').includes(`'${viewId}'`)) {
+                    nav.classList.add('active');
+                }
+            });
+
+            // UI Update
+            const titles = {
+                dashboard: ['관리 대시보드', '실시간 시스템 메트릭'],
+                logs: ['시스템 로그', '서버 활동 기록 조회'],
+                users: ['사용자 관리', '참여자 명부 및 권한 제어'],
+                monitoring: ['대화방 모니터링', '실시간 트래픽 트래킹'],
+                notices: ['긴급 공지 확인 현황', '공지별 읽음/미확인 상세 추적'],
+                backups: ['검색 및 백업', '데이터 보관 및 탐색']
+            };
+            if (titles[viewId]) {
+                document.getElementById('viewTitle').textContent = titles[viewId][0];
+            }
+
+            // [v1.0.5] URL History Update
+            if (updateHistory) {
+                history.pushState(null, null, '#' + viewId);
+            }
+
+            // Load Data
+            if (viewId === 'dashboard') { loadStats(); loadDashboardLogs(); }
+            if (viewId === 'logs') loadLogs();
+            if (viewId === 'users') loadUsers();
+            if (viewId === 'monitoring') loadRooms();
+            if (viewId === 'notices') loadNotices();
+            if (viewId === 'backups') loadBackups();
+        }
+
+        async function loadLogs() {
+            const container = document.getElementById('fullLogList');
+            const startDate = document.getElementById('logStartDate').value;
+            const endDate = document.getElementById('logEndDate').value;
+
+            let url = '/api/admin/logs?limit=100';
+            if (startDate && endDate) {
+                url += `&startDate=${startDate}&endDate=${endDate}`;
+            }
+
+            container.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem;"><i class="fas fa-spinner fa-spin"></i> 로그를 불러오는 중...</td></tr>';
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (data.logs.length === 0) {
+                    container.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-muted);">조건에 맞는 로그 내역이 없습니다.</td></tr>';
+                    return;
+                }
+
+                container.innerHTML = data.logs.map(log => {
+                    const timeStr = new Date(log.created_at.replace(' ', 'T')).toLocaleString('ko-KR');
+
+                    let levelBadge = '';
+                    if (log.level === 'INFO') levelBadge = '<span style="color: #64ffda; font-weight:800;">INFO</span>';
+                    else if (log.level === 'WARN') levelBadge = '<span style="color: #ffd700; font-weight:800;">WARN</span>';
+                    else if (log.level === 'ERROR') levelBadge = '<span style="color: #ff5f56; font-weight:800;">ERROR</span>';
+
+                    const rowBg = log.level === 'ERROR' ? 'rgba(255, 95, 86, 0.05)' : 'transparent';
+
+                    return `
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); background: ${rowBg}; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='${rowBg}'">
+                            <td style="padding: 0.8rem 1rem; color: var(--text-muted);">${timeStr}</td>
+                            <td style="padding: 0.8rem 1rem; text-align: center;">${levelBadge}</td>
+                            <td style="padding: 0.8rem 1rem; text-align: center; color: var(--text); font-weight:600;">${log.category}</td>
+                            <td style="padding: 0.8rem 1rem; color: var(--text);">${log.message}</td>
+                            <td style="padding: 0.8rem 1rem; color: var(--text-muted); font-size: 0.75rem;">${log.ip_address}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (e) {
+                container.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem; color: #ff5f56;">불러오기 실패: ${e.message}</td></tr>`;
+            }
+        }
+
+        // Helper to set dates
+        function setDateRange(range, btnElement) {
+            // UI Toggle logic
+            if (btnElement) {
+                document.querySelectorAll('.date-filter-btn').forEach(b => b.classList.remove('active'));
+                btnElement.classList.add('active');
+            }
+            const today = new Date();
+            const end = today.toISOString().split('T')[0];
+            let start = end;
+
+            if (range === 'week') {
+                const d = new Date(); d.setDate(d.getDate() - 7);
+                start = d.toISOString().split('T')[0];
+            } else if (range === 'month') {
+                const d = new Date(); d.setMonth(d.getMonth() - 1);
+                start = d.toISOString().split('T')[0];
+            } else if (range === 'year') {
+                const d = new Date(); d.setFullYear(d.getFullYear() - 1);
+                start = d.toISOString().split('T')[0];
+            }
+
+            document.getElementById('logStartDate').value = start;
+            document.getElementById('logEndDate').value = end;
+            loadLogs();
+        }
+
+        async function loadDashboardLogs() {
+            const container = document.getElementById('dashboardLogList');
+            // Assuming just fetching recent logs (limit=20, no date filter)
+            try {
+                const res = await fetch('/api/admin/logs?limit=20');
+                const data = await res.json();
+
+                if (data.logs.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; font-size: 0.8rem; color: var(--text-muted); padding: 2rem;">최근 로그가 없습니다.</div>';
+                    return;
+                }
+
+                container.innerHTML = data.logs.map(log => {
+                    // [v2.5.5] Robust time parsing (treat as UTC if date is old, KST if newer string format)
+                    let d = new Date(log.created_at.replace(' ', 'T'));
+                    // If it's a UTC string from DB, it might be interpreted as Local. 
+                    // Since server is KST, let's just use it as is if it's already in KST format.
+                    const timeStr = d.toLocaleTimeString('ko-KR');
+
+                    let barColor = '#64ffda'; // Green for Info
+                    if (log.level === 'WARN') barColor = '#ffd700'; // Yellow
+                    if (log.level === 'ERROR') barColor = '#ff5f56'; // Red
+
+                    return `
+                        <div style="border-left: 3px solid ${barColor}; background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 0 4px 4px 0; display: flex; flex-direction: column; gap: 4px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 0.7rem; color: var(--text-muted); font-family: 'Courier New';">${timeStr}</span>
+                                <span style="font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); color: var(--text-muted);">${log.category}</span>
+                            </div>
+                            <div style="font-size: 0.85rem; color: var(--text);">${log.message}</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                container.innerHTML = '<div style="color: #ff5f56; text-align:center;">로그 로드 실패</div>';
+            }
+        }
+
+        // Initialize defaults
+        window.addEventListener('scroll', () => { }); // Dummy
+
+        // [v1.0.5] Hash Routing Support
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Check URL Hash
+            const hash = location.hash.replace('#', '');
+            const validViews = ['dashboard', 'logs', 'users', 'monitoring', 'notices', 'backups'];
+            let initialView = 'dashboard';
+            if (hash.startsWith('backups')) initialView = 'backups';
+            else if (validViews.includes(hash)) initialView = hash;
+
+            // 2. Load View (without pushing history again)
+            switchView(initialView, false);
+
+            // 3. Set Defaults
+            setDateRange('today');
+        });
+
+        // Handle Back/Forward buttons
+        window.addEventListener('hashchange', () => {
+            const hash = location.hash.replace('#', '');
+            const validViews = ['dashboard', 'logs', 'users', 'monitoring', 'notices', 'backups'];
+            if (validViews.includes(hash)) {
+                switchView(hash, false);
+            }
+        });
+
+        async function loadStats() {
+            try {
+                const res = await fetch('/api/admin/stats');
+                const data = await res.json();
+
+                document.getElementById('totalUsers').textContent = data.totalUsers;
+                document.getElementById('onlineCount').textContent = data.onlineCount;
+                document.getElementById('todayMsgs').textContent = data.todayMessages;
+                document.getElementById('dbSize').textContent = data.dbSize;
+
+                // [v2.5.5] Admin Last Login Display
+                if (data.adminLastLogin) {
+                    const loginDate = new Date(data.adminLastLogin.replace(' ', 'T'));
+                    document.getElementById('adminLastLogin').textContent = `마지막 접속: ${loginDate.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })} ${loginDate.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}`;
+                } else {
+                    document.getElementById('adminLastLogin').textContent = '마지막 접속: 기록 없음';
+                }
+
+                renderChart(data.traffic);
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadLogs() {
+            const container = document.getElementById('fullLogList');
+            container.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem;"><i class="fas fa-spinner fa-spin"></i> 로그를 불러오는 중...</td></tr>';
+            try {
+                const res = await fetch('/api/admin/logs?limit=100');
+                const data = await res.json();
+
+                if (data.logs.length === 0) {
+                    container.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-muted);">로그 내역이 없습니다.</td></tr>';
+                    return;
+                }
+
+                container.innerHTML = data.logs.map(log => {
+                    const timeStr = new Date(log.created_at.replace(' ', 'T')).toLocaleString('ko-KR');
+
+                    let levelBadge = '';
+                    if (log.level === 'INFO') levelBadge = '<span style="color: #64ffda; font-weight:800;">INFO</span>';
+                    else if (log.level === 'WARN') levelBadge = '<span style="color: #ffd700; font-weight:800;">WARN</span>';
+                    else if (log.level === 'ERROR') levelBadge = '<span style="color: #ff5f56; font-weight:800;">ERROR</span>';
+
+                    const rowBg = log.level === 'ERROR' ? 'rgba(255, 95, 86, 0.05)' : 'transparent';
+
+                    return `
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); background: ${rowBg}; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='${rowBg}'">
+                            <td style="padding: 0.8rem 1rem; color: var(--text-muted);">${timeStr}</td>
+                            <td style="padding: 0.8rem 1rem; text-align: center;">${levelBadge}</td>
+                            <td style="padding: 0.8rem 1rem; text-align: center; color: var(--text); font-weight:600;">${log.category}</td>
+                            <td style="padding: 0.8rem 1rem; color: var(--text);">${log.message}</td>
+                            <td style="padding: 0.8rem 1rem; color: var(--text-muted); font-size: 0.75rem;">${log.ip_address}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (e) {
+                container.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem; color: #ff5f56;">불러오기 실패: ${e.message}</td></tr>`;
+            }
+        }
+
+        let trafficChart = null;
+        function renderChart(traffic) {
+            const ctx = document.getElementById('trafficChart').getContext('2d');
+            if (trafficChart) trafficChart.destroy();
+
+            trafficChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: traffic.map(t => t.hour),
+                    datasets: [{
+                        label: 'Messages',
+                        data: traffic.map(t => t.count),
+                        borderColor: '#64ffda',
+                        backgroundColor: 'rgba(100, 255, 218, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, border: { display: false } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function logout() {
+            sessionStorage.removeItem('adminToken');
+            location.href = '/admin/login.html';
+        }
+
+        // Initial load
+        loadStats();
+        loadDashboardLogs(); // [Fix] 대시보드 로그도 즉시 로드
+        setInterval(loadStats, 30000); // 30s auto refresh
+
+        // --- Modules Implementation ---
+
+        // 1. Users Module
+        // Socket.io Implementation
+        let socket = null;
+        let currentStatsMessageId = null; // [추가] 실시간 공지 확인 현황 갱신 전용 변수
+        if (typeof io !== 'undefined') {
+            socket = io();
+
+            // 연결되거나 재연결될 때 룸 재입장 처리
+            socket.on('connect', () => {
+                console.log('[Socket] Connected. Joining admin_room...');
+                socket.emit('join_admin_room');
+
+                // 현재 모니터링 중인 방이 있다면 해당 방 소켓 룸도 재입장
+                if (currentMonitoredRoomId) {
+                    socket.emit('join_room', currentMonitoredRoomId);
+                }
+            });
+
+            socket.on('notice_read_updated', (data) => {
+                console.log('[Socket] Notice Read Updated:', data);
+                // 1. 공지사항 목록 화면이면 목록 갱신 (확인율 업데이트)
+                if (document.getElementById('noticesView').classList.contains('active')) {
+                    loadNotices();
+                }
+                // 2. 만약 해당 공지의 통계 모달이 열려있다면 모달 갱신
+                if (currentStatsMessageId == data.messageId) {
+                    showNoticeStats(data.messageId, true); // true: 백그라운드 무음 갱신
+                }
+            });
+            socket.on('receive_message', (data) => {
+                console.log('[Socket] New Message:', data);
+
+                // 1. 개설된 대화방 목록 실시간 동기화
+                if (document.getElementById('monitoringView').classList.contains('active')) {
+                    loadRooms();
+                }
+
+                // 2. 현재 선택된 대화방의 실시간 대화 내용 동기화
+                // currentMonitoredRoomId와 data.roomId의 타입을 통일하여 비교 (== 대신 문자열 변환 비교)
+                if (currentMonitoredRoomId && String(currentMonitoredRoomId) === String(data.roomId)) {
+                    const container = document.getElementById('chatPreview');
+
+                    // [Fix] 이미 해당 ID의 메시지가 있으면 중복 추가 방지
+                    if (data.id && document.getElementById(`msg-${data.id}`)) return;
+
+                    const isSystem = Number(data.senderId) === 1;
+                    const isNotice = data.type === 'notice';
+
+                    // Simple helper to parse date robustly
+                    const parseDate = (dateStr) => {
+                        if (!dateStr) return new Date();
+                        const d = new Date(dateStr.replace(' ', 'T'));
+                        return isNaN(d.getTime()) ? new Date(dateStr) : d;
+                    };
+                    const timeStr = parseDate(data.createdAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+
+                    let msgHtml = '';
+                    if (isNotice) {
+                        msgHtml = `
+                            <div id="msg-${data.id}" class="chat-bubble bubble-system" style="border: 1px solid var(--notice-red); background: rgba(255, 95, 86, 0.05); width: 100%; max-width: 100%; border-radius: 12px; margin: 1rem 0; padding: 0; box-shadow: 0 4px 15px rgba(255, 95, 86, 0.1);">
+                                <div style="background: var(--notice-red); color: white; padding: 8px 16px; font-weight: 800; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; border-radius: 10px 10px 0 0;">
+                                    <span>🚨 [긴급 공지 사항]</span>
+                                    <button onclick="showNoticeStats(${data.id})" style="background: white; color: var(--notice-red); border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; cursor: pointer;">실시간 확인 현황</button>
+                                </div>
+                                <div class="bubble-content" style="padding: 1.2rem; font-weight: 600; font-size: 0.95rem; white-space: pre-wrap; line-height: 1.5;">${data.content}</div>
+                                <div style="text-align: right; padding: 6px 16px; font-size: 0.7rem; color: var(--text-muted);">발송: ${timeStr}</div>
+                            </div>
+                        `;
+                    } else {
+                        msgHtml = `
+                            <div id="msg-${data.id}" class="chat-bubble ${isSystem ? 'bubble-system' : 'bubble-other'}">
+                                ${!isSystem ? `<div class="bubble-info"><strong>${data.senderName}</strong> · ${timeStr}</div>` : ''}
+                                <div class="bubble-content">${data.content}</div>
+                            </div>
+                        `;
+                    }
+
+                    // "No messages" placeholder 제거
+                    if (container.innerText.includes('메시지가 없습니다')) container.innerHTML = '';
+
+                    container.insertAdjacentHTML('beforeend', msgHtml);
+                    container.scrollTop = container.scrollHeight;
+                }
+            });
+
+            socket.on('room_updated', (data) => {
+                console.log('[Socket] Room List Update Notification Received:', data);
+                // 모니터링 뷰가 활성 상태일 때만 목록 갱신 (불필요한 DOM 갱신 방지)
+                if (document.getElementById('monitoringView').classList.contains('active')) {
+                    console.log('[Socket] Monitoring view is active. Refreshing room list...');
+                    loadRooms();
+                }
+            });
+
+            socket.on('user_status', (data) => {
+                console.log('[Socket] User Status Change:', data);
+                // 유저 관리 화면이 활성 상태면 목록 갱신
+                if (document.getElementById('usersView').classList.contains('active')) {
+                    loadUsers();
+                }
+                // 대시보드가 활성 상태면 접속자 수 등 통계 갱신
+                if (document.getElementById('dashboardView').classList.contains('active')) {
+                    loadStats();
+                }
+            });
+
+            socket.on('notice', (data) => {
+                console.log('[Socket] New Global Notice:', data);
+                // 1. 공지사항 목록 화면이면 목록 갱신
+                if (document.getElementById('noticesView').classList.contains('active')) {
+                    loadNotices();
+                }
+                // 2. 대시보드가 활성 상태면 통계 및 로그 위젯 갱신
+                if (document.getElementById('dashboardView').classList.contains('active')) {
+                    loadStats();
+                    loadDashboardLogs();
+                }
+            });
+        }
+
+        // 1. Users Module
+        let userSortCol = 'id';
+        let userSortDir = 'asc';
+        let userSearchQuery = '';
+
+        async function loadUsers(query = userSearchQuery) {
+            userSearchQuery = query;
+            try {
+                const res = await fetch(`/api/users?search=${encodeURIComponent(userSearchQuery)}`);
+                let users = await res.json();
+
+                users.sort((a, b) => {
+                    let valA = a[userSortCol];
+                    let valB = b[userSortCol];
+                    if (typeof valA === 'string') valA = valA.toLowerCase();
+                    if (typeof valB === 'string') valB = valB.toLowerCase();
+                    if (valA < valB) return userSortDir === 'asc' ? -1 : 1;
+                    if (valA > valB) return userSortDir === 'asc' ? 1 : -1;
+                    return 0;
+                });
+
+                const container = document.getElementById('usersView');
+                const searchInput = document.getElementById('userSearchInput');
+
+                const getSortIcon = (col) => {
+                    if (userSortCol !== col) return '<i class="fas fa-sort" style="opacity: 0.3; margin-left: 5px;"></i>';
+                    return userSortDir === 'asc' ? '<i class="fas fa-sort-up" style="margin-left: 5px;"></i>' : '<i class="fas fa-sort-down" style="margin-left: 5px;"></i>';
+                };
+
+                const userTableRows = users.map((u, idx) => {
+                    const rowBg = idx % 2 === 1 ? 'rgba(100,255,218,0.02)' : 'transparent';
+                    const macStr = u.mac_address || '<span style="color:var(--text-muted); font-style:italic;">기록 없음</span>';
+                    const bindingIcon = u.mac_binding === 1 ? '<i class="fas fa-link" style="color:var(--primary);"></i>' : '<i class="fas fa-unlink" style="color:var(--text-muted);"></i>';
+                    const bindingText = u.mac_binding === 1 ? '매핑됨' : '미매핑';
+                    const bindingColor = u.mac_binding === 1 ? 'var(--primary)' : 'var(--text-muted)';
+                    return `
+                        <tr style="border-bottom: 1px solid var(--glass-border); background: ${rowBg}; transition: 0.2s;" onmouseover="this.style.background='rgba(76, 102, 255, 0.08)'" onmouseout="this.style.background='${rowBg}'">
+                            <td style="padding: 1.2rem 1.5rem; color: var(--text-muted); font-family: 'Inter'; font-weight: 600;">${idx + 1}</td>
+                            <td style="padding: 1.2rem;">
+                                <div style="font-weight: 700; font-size: 1rem; color: var(--text);">${u.username}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; display: flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-laptop-code" style="font-size: 0.7rem;"></i> ID: <span style="font-family: 'Courier New'; font-weight: 600; color: var(--text-muted);">${macStr}</span>
+                                    ${u.mac_address ? `<button onclick="clearMac(${u.id})" style="background:none; border:none; color:#ff5f56; font-size:0.6rem; cursor:pointer; padding:0 4px; text-decoration:underline;">초기화</button>` : ''}
+                                </div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 6px; display: flex; align-items: center; gap: 4px;">
+                                    <span style="background: rgba(100,255,218,0.1); padding: 2px 6px; border-radius: 4px; color: var(--primary);">기기 : ${u.device_type === 'Mobile' ? '모바일' : (u.device_type === 'Desktop' ? '데스크탑' : (u.device_type || '알 수 없음'))}</span>
+                                    <span style="background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px;">OS : ${u.os_info || '정보 없음'}</span>
+                                </div>
+                            </td>
+                            <td style="padding: 1.2rem;">
+                                <div onclick="toggleBinding(${u.id}, ${u.mac_binding || 0})" style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; padding: 6px 12px; border-radius: 6px; background: rgba(255,255,255,0.03); border: 1px solid ${u.mac_binding === 1 ? 'var(--primary)' : 'var(--glass-border)'}; transition: 0.2s;">
+                                    ${bindingIcon}
+                                    <span style="font-size: 0.75rem; font-weight: 700; color: ${bindingColor}">${bindingText}</span>
+                                </div>
+                            </td>
+                            <td style="padding: 1.2rem;">
+                                <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; background: ${u.isOnline ? 'rgba(16, 185, 129, 0.15)' : 'rgba(100, 116, 139, 0.1)'}; color: ${u.isOnline ? '#059669' : '#64748b'}; border: 1px solid ${u.isOnline ? 'rgba(16, 185, 129, 0.2)' : 'rgba(100, 116, 139, 0.2)'};">
+                                    <span style="width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0;"></span>
+                                    ${u.isOnline ? '온라인' : '오프라인'}
+                                </span>
+                            </td>
+                            <td style="padding: 1.2rem;">
+                                <div style="display: inline-flex; gap: 0.6rem; align-items: center;">
+                                    <button onclick="showEditUserModal(${u.id})" class="btn-action" style="padding: 0.5rem; background: rgba(76, 102, 255, 0.1); border-color: #4c66ff; color: #4c66ff;"><i class="fas fa-edit"></i> 상세 관리</button>
+                                    <button onclick="deleteUser(${u.id})" class="btn-action" style="padding: 0.5rem; background: rgba(255, 95, 86, 0.1); border-color: #ff5f56; color: #ff5f56;"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                if (searchInput) {
+                    // Update only list and count label to avoid IME issue
+                    const countLabel = document.getElementById('userCountLabel');
+                    if (countLabel) countLabel.textContent = `활성 사용자 명부 (${users.length}명)`;
+
+                    const tableBody = document.getElementById('userTableBody');
+                    if (tableBody) tableBody.innerHTML = userTableRows;
+                } else {
+                    // Initial render or structure changed
+                    container.innerHTML = `
+                        <div class="glass-panel" style="display: flex; flex-direction: column; max-height: calc(100vh - 180px); padding: 0; overflow: hidden; border: 1px solid var(--glass-border);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem 2rem 2rem; flex-shrink: 0; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--glass-border);">
+                                <div style="display: flex; align-items: center; gap: 1.5rem;">
+                                    <h2 id="userCountLabel" style="font-size: 1.1rem; font-weight: 700;">활성 사용자 명부 (${users.length}명)</h2>
+                                    <div style="position: relative;">
+                                        <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.8rem;"></i>
+                                        <input type="text" id="userSearchInput" placeholder="사용자명 검색..." 
+                                            style="padding: 0.6rem 1rem 0.6rem 2.2rem; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text); outline: none; font-size: 0.8rem; width: 220px;" 
+                                            oninput="loadUsers(this.value)" value="${userSearchQuery}">
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 1.2rem;">
+                                    <!-- Excel Upload Group -->
+                                    <div style="display: flex; flex-direction: column; align-items: flex-end; text-align: right; position: relative;">
+                                        <button class="btn-action" style="border-color: #ffd700; color: #ffd700; font-size: 0.75rem; padding: 0.6rem 1.2rem; transition: 0.2s;" 
+                                            onclick="document.getElementById('excelUploadUser').click()"
+                                            onmouseover="this.style.background='rgba(255, 215, 0, 0.1)'" onmouseout="this.style.background='transparent'">
+                                            <i class="fas fa-file-excel" style="margin-right: 6px;"></i>엑셀 일괄 등록
+                                        </button>
+                                        <input type="file" id="excelUploadUser" accept=".xlsx, .xls" style="display: none;" onchange="uploadUserExcel(this)">
+                                        <div style="position: absolute; top: 100%; left: 50%; transform: translateX(-50%); width: max-content; font-size: 0.65rem; color: var(--text-muted); margin-top: 8px; background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">
+                                            <i class="fas fa-info-circle"></i> 양식: 1열 ID, 2열 PW (헤더 무관)
+                                        </div>
+                                    </div>
+
+                                    <!-- Divider -->
+                                    <div style="width: 1px; height: 24px; background: var(--glass-border);"></div>
+
+                                    <!-- New User Button -->
+                                    <button class="btn-action" onclick="showCreateUserModal()"
+                                        style="font-size: 0.75rem; padding: 0.6rem 1.2rem; background: var(--primary); color: var(--bg); border: none; font-weight: 700; box-shadow: 0 4px 12px rgba(100, 255, 218, 0.2);">
+                                        <i class="fas fa-user-plus" style="margin-right: 6px;"></i>신규 사용자
+                                    </button>
+                                </div>
+
+                            </div>
+                            <div style="overflow-y: auto; flex: 1; min-height: 0;" class="custom-scroll">
+                                <table style="width: 100%; border-collapse: collapse; text-align: left; min-width: 800px;">
+                                    <thead style="position: sticky; top: 0; background: var(--sidebar-bg); z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                                        <tr style="color: #ffffff; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 800;">
+                                            <th style="padding: 1.2rem 1.5rem; border-bottom: 2px solid var(--primary); width: 80px;">번호</th>
+                                            <th style="padding: 1.2rem; cursor: pointer; border-bottom: 2px solid var(--primary);" onclick="toggleUserSort('username')">사용자명/기기정보 ${getSortIcon('username')}</th>
+                                            <th style="padding: 1.2rem; cursor: pointer; border-bottom: 2px solid var(--primary); width: 150px;" onclick="toggleUserSort('mac_binding')">기기 매핑 ${getSortIcon('mac_binding')}</th>
+                                            <th style="padding: 1.2rem; cursor: pointer; border-bottom: 2px solid var(--primary); width: 120px;" onclick="toggleUserSort('isOnline')">접속상태 ${getSortIcon('isOnline')}</th>
+                                            <th style="padding: 1.2rem; border-bottom: 2px solid var(--primary); width: 220px;">관리 작업</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="userTableBody">
+                                        ${userTableRows}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function resetPassword(id) {
+            if (!confirm('비밀번호를 1234로 초기화하시겠습니까?')) return;
+            const res = await fetch(`/api/admin/users/${id}/reset-password`, { method: 'POST' });
+            if (res.ok) alert('성공적으로 초기화되었습니다.');
+        }
+
+        async function deleteUser(id) {
+            if (!confirm('정말로 이 사용자를 삭제하시겠습니까? 데이터가 영구 삭제됩니다.')) return;
+            const res = await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+            if (res.ok) loadUsers();
+        }
+
+        async function uploadUserExcel(input) {
+            if (!input.files || input.files.length === 0) return;
+
+            if (!confirm('선택한 엑셀 파일로 사용자를 일괄 등록하시겠습니까?\n(양식: 1열 사용자명, 2열 비밀번호)')) {
+                input.value = '';
+                return;
+            }
+
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await fetch('/api/admin/users/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await res.json();
+                if (res.ok) {
+                    alert(`업로드 처리 완료\n✅ 성공: ${result.successCount}건\n⚠️ 실패(중복 등): ${result.failCount}건`);
+                    loadUsers();
+                } else {
+                    alert('업로드 실패: ' + (result.error || '알 수 없는 오류'));
+                }
+            } catch (err) {
+                alert('업로드 중 오류 발생: ' + err.message);
+            } finally {
+                input.value = '';
+            }
+        }
+
+        function toggleUserSort(col) {
+            if (userSortCol === col) {
+                userSortDir = userSortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                userSortCol = col;
+                userSortDir = 'asc';
+            }
+            loadUsers();
+        }
+
+        async function showEditUserModal(id) {
+            try {
+                const res = await fetch(`/api/admin/users/${id}`);
+                const user = await res.json();
+                if (!res.ok) throw new Error(user.error);
+
+                document.getElementById('editUserId').value = user.id;
+                document.getElementById('editUsername').value = user.username;
+                document.getElementById('editIsAdmin').checked = user.is_admin === 1;
+                document.getElementById('editMacAddress').value = user.mac_address || '';
+                document.getElementById('editMacBinding').checked = user.mac_binding === 1;
+
+                // [v2.5.7] Display OS/Device Info in modal
+                const deviceType = user.device_type === 'Mobile' ? '모바일' : (user.device_type === 'Desktop' ? '데스크탑' : (user.device_type || '알 수 없음'));
+                document.getElementById('editDeviceType').value = deviceType;
+                document.getElementById('editOsInfo').value = user.os_info || '정보 없음';
+
+                document.getElementById('editUserModal').style.display = 'flex';
+            } catch (err) {
+                alert('정보를 불러오지 못했습니다: ' + err.message);
+            }
+        }
+
+        function closeEditUserModal() {
+            document.getElementById('editUserModal').style.display = 'none';
+        }
+
+        async function fetchLatestMac() {
+            const id = document.getElementById('editUserId').value;
+            const btn = event.target;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            try {
+                const res = await fetch(`/api/admin/users/${id}`);
+                const data = await res.json();
+                document.getElementById('editMacAddress').value = data.mac_address || '';
+                if (!data.mac_address) alert('기록된 기기 정보가 없습니다.');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-sync-alt"></i> 가져오기';
+            }
+        }
+
+        async function saveUserChanges() {
+            const id = document.getElementById('editUserId').value;
+            const body = {
+                username: document.getElementById('editUsername').value.trim(),
+                is_admin: document.getElementById('editIsAdmin').checked ? 1 : 0,
+                mac_address: document.getElementById('editMacAddress').value.trim(),
+                mac_binding: document.getElementById('editMacBinding').checked ? 1 : 0
+            };
+
+            const res = await fetch(`/api/admin/users/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            if (res.ok) {
+                alert('저장되었습니다.');
+                closeEditUserModal();
+                loadUsers();
+            } else {
+                alert('저장 실패');
+            }
+        }
+
+        async function toggleAdmin(id, currentStatus) {
+            const newStatus = currentStatus ? 0 : 1;
+            const res = await fetch(`/api/admin/users/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ is_admin: newStatus })
+            });
+            if (res.ok) loadUsers();
+        }
+
+        async function toggleBinding(id, currentBinding) {
+            const newBinding = currentBinding === 1 ? 0 : 1;
+            const res = await fetch(`/api/admin/users/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mac_binding: newBinding })
+            });
+            if (res.ok) loadUsers();
+        }
+
+        async function clearMac(id) {
+            if (!confirm('해당 사용자의 기기 정보를 초기화하시겠습니까? 다음 로그인 시 기기가 자동으로 등록됩니다.')) return;
+            const res = await fetch(`/api/admin/users/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mac_address: null, mac_binding: 0 })
+            });
+            if (res.ok) loadUsers();
+            else alert('초기화 실패');
+        }
+
+        function showCreateUserModal() {
+            document.getElementById('createUserModal').style.display = 'flex';
+        }
+
+        function closeCreateUserModal() {
+            document.getElementById('createUserModal').style.display = 'none';
+        }
+
+        async function createUser() {
+            const username = document.getElementById('newUsername').value;
+            const password = document.getElementById('newPassword').value;
+
+            if (!username || !password) return alert('아이디와 비밀번호를 모두 입력하세요.');
+
+            const res = await fetch('/api/admin/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (res.ok) {
+                alert('사용자가 등록되었습니다.');
+                closeCreateUserModal();
+                loadUsers();
+            } else {
+                const data = await res.json();
+                alert(data.error || '등록 실패');
+            }
+        }
+
+        // 2. Monitoring Module
+        let currentMonitoredRoomId = null;
+
+        async function loadRooms() {
+            try {
+                const res = await fetch('/api/admin/rooms');
+                const rooms = await res.json();
+
+                // [v2.5.1] Global room sort to top (Not strictly needed with separate sections but good for safety)
+                rooms.sort((a, b) => {
+                    if (a.room_identifier === 'global') return -1;
+                    if (b.room_identifier === 'global') return 1;
+                    return 0;
+                });
+
+                const container = document.getElementById('roomListContainer');
+
+                // Ensure roomListContainer takes full height of parent
+                container.style.flex = '1';
+                container.style.display = 'flex';
+                container.style.flexDirection = 'column';
+                container.style.overflow = 'hidden';
+
+                document.getElementById('roomCount').textContent = `${rooms.length} Rooms`;
+
+                const renderRoomCard = (r) => {
+                    // For 1:1 rooms, use participant names if available
+                    let displayName = r.room_name || r.room_identifier;
+
+                    // [v2.5.1] Rename global room
+                    if (r.room_identifier === 'global') displayName = '전체대화방';
+
+                    if (r.room_type === '1:1' && r.participants) {
+                        displayName = r.participants;
+                    }
+
+                    const isGlobal = r.room_identifier === 'global';
+
+                    return `
+                        <div class="room-card ${currentMonitoredRoomId == r.id ? 'active' : ''}" onclick="loadMessages(${r.id}, '${displayName}')">
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.95rem;">${displayName}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px;">
+                                    최근: ${r.last_message || '(메시지 없음)'}
+                                </div>
+                            </div>
+                            <div style="text-align: right; min-width: 100px;">
+                                <div onclick="event.stopPropagation(); viewParticipants(${r.id}, '${displayName}')" 
+                                     style="font-size: 0.7rem; color: var(--primary); font-family: 'Inter'; font-weight: 600; cursor: pointer; text-decoration: underline;">
+                                    ${r.participant_count}명 참여
+                                </div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">${r.room_type}</div>
+                                <div style="margin-top: 6px; display: flex; gap: 10px; justify-content: flex-end;">
+                                    <div onclick="clearRoomMessages(${r.id}, event)" style="font-size: 0.7rem; color: #ffd700; cursor: pointer;"><i class="fas fa-broom"></i> 초기화</div>
+                                    ${!isGlobal ? `<div onclick="deleteRoom(${r.id}, event)" style="font-size: 0.7rem; color: #ff5f56; cursor: pointer;"><i class="fas fa-trash"></i> 삭제</div>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                };
+
+                const globalRooms = rooms.filter(r => r.room_identifier === 'global');
+                const otherRooms = rooms.filter(r => r.room_identifier !== 'global');
+
+                const globalHtml = globalRooms.map(renderRoomCard).join('');
+                const otherHtml = otherRooms.map(renderRoomCard).join('');
+
+                container.innerHTML = `
+                    <div style="flex-shrink: 0; padding-bottom: 0.5rem; border-bottom: 1px solid var(--glass-border); margin-bottom: 0.5rem;">
+                        ${globalHtml}
+                    </div>
+                    <div class="custom-scroll" style="flex: 1; overflow-y: auto; padding-right: 4px;">
+                        ${otherHtml}
+                    </div>
+                `;
+
+                // If we were monitoring a room, keep it active (visual only here as loadMessages re-renders)
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadMessages(roomId, roomName) {
+            currentMonitoredRoomId = roomId;
+            if (socket) socket.emit('join_room', roomId);
+            document.getElementById('currentRoomName').textContent = roomName;
+            document.getElementById('currentRoomInfo').textContent = `Room ID: ${roomId} | 실시간 모니터링 중`;
+
+            // Re-render rooms to show active state
+            loadRooms();
+
+            try {
+                // We'll use the existing chat history API if available, or fetch it specifically
+                const res = await fetch(`/api/rooms/${roomId}/messages`);
+                const messages = await res.json();
+                const container = document.getElementById('chatPreview');
+
+                if (messages.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: var(--text-muted); margin-top: 2rem;">메시지가 없습니다.</div>';
+                    return;
+                }
+
+                let lastDateStr = null;
+
+                container.innerHTML = messages.map(m => {
+                    const isSystem = m.sender_id === 1;
+                    const isNotice = m.type === 'notice';
+                    const msgId = m.id || m.message_id;
+
+                    const msgDate = new Date(m.created_at || m.createdAt);
+                    const timeStr = msgDate.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+                    const dateStr = msgDate.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+
+                    let dateDivider = '';
+                    if (lastDateStr !== dateStr) {
+                        lastDateStr = dateStr;
+                        dateDivider = `
+                            <div style="text-align: center; margin: 1.5rem 0 1rem 0; position: relative;">
+                                <div style="display: inline-block; background: rgba(255, 255, 255, 0.1); color: var(--text-muted); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">${dateStr}</div>
+                            </div>
+                        `;
+                    }
+
+                    if (isNotice) {
+                        return dateDivider + `
+                            <div id="msg-${msgId}" class="chat-bubble bubble-system" style="border: 1px solid var(--notice-red); background: rgba(255, 95, 86, 0.05); width: 100%; max-width: 100%; border-radius: 12px; margin: 1rem 0; padding: 0; box-shadow: 0 4px 15px rgba(255, 95, 86, 0.1);">
+                                <div style="background: var(--notice-red); color: white; padding: 8px 16px; font-weight: 800; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; border-radius: 10px 10px 0 0;">
+                                    <span>🚨 [긴급 공지 사항]</span>
+                                    <button onclick="showNoticeStats(${msgId})" style="background: white; color: var(--notice-red); border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; cursor: pointer; transition: 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">실시간 확인 현황</button>
+                                </div>
+                                <div class="bubble-content" style="padding: 1.2rem; font-weight: 600; font-size: 0.95rem; white-space: pre-wrap; line-height: 1.5;">${m.content}</div>
+                                <div style="text-align: right; padding: 6px 16px; font-size: 0.7rem; color: var(--text-muted);">ID: #${msgId} | 발송: ${timeStr}</div>
+                            </div>
+                        `;
+                    }
+
+                    return dateDivider + `
+                        <div id="msg-${msgId}" class="chat-bubble ${isSystem ? 'bubble-system' : 'bubble-other'}">
+                            ${!isSystem ? `<div class="bubble-info"><strong>${m.senderName || m.username || 'System'}</strong> · ${timeStr}</div>` : ''}
+                            <div class="bubble-content">${m.content}</div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Scroll to bottom
+                container.scrollTop = container.scrollHeight;
+            } catch (err) {
+                console.error(err);
+                document.getElementById('chatPreview').innerHTML = '<div style="color: #ff4d4d; text-align: center;">대화 내용을 불러오지 못했습니다.</div>';
+            }
+        }
+
+        // 3. Backup & Explore Module
+        async function loadBackups() {
+            try {
+                const res = await fetch('/api/admin/backups');
+                const backups = await res.json();
+                const container = document.getElementById('backupsView');
+                container.innerHTML = `
+                    <div class="glass-panel">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                            <h2>백업 및 복구 탐색기</h2>
+                            <button class="btn-action" onclick="runBackup()">✚ 즉시 백업 실행</button>
+                        </div>
+                        <div style="margin-bottom: 2rem;">
+                            <label style="display:block; color: var(--primary); font-size: 0.8rem; font-family:'Courier New', monospace; margin-bottom:0.5rem;">저장 경로 (기본값: ./backups)</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="backupPathInput" placeholder="백업 디렉토리 절대 경로 입력" style="flex:1; padding:0.8rem; background:rgba(0,0,0,0.3); border:1px solid var(--glass-border); border-radius:6px; color:var(--text);">
+                                <button class="btn-action" onclick="openDirExplorer()" style="white-space: nowrap; font-size: 0.8rem;"><i class="fas fa-folder-open"></i> 찾아보기</button>
+                            </div>
+                        </div>
+                        <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 12px;">
+                            <h3 style="color: var(--primary); font-size: 0.9rem; margin-bottom: 1rem;"><i class="fas fa-calendar-alt"></i> 자동 백업 스케줄 설정</h3>
+                            <div style="display: flex; gap: 10px; align-items: flex-end;">
+                                <div style="flex: 1;">
+                                    <label style="display:block; color: var(--text-muted); font-size: 0.75rem; margin-bottom: 0.5rem;">백업 주기 선택</label>
+                                    <select id="backupScheduleInterval" style="width:100%; padding:0.8rem; background:rgba(0,0,0,0.3); border:1px solid var(--glass-border); border-radius:6px; color:var(--text);">
+                                        <option value="weekly">주 단위 (7일 간격)</option>
+                                        <option value="monthly">월 단위 (1개월 간격)</option>
+                                        <option value="quarterly">분기 단위 (분기 말일)</option>
+                                        <option value="yearly">년 단위 (매년 12월 31일)</option>
+                                    </select>
+                                </div>
+                                <button class="btn-action" onclick="addBackupSchedule()" style="height: 45px; background: var(--accent); color: #000; border: none; font-weight: 800; padding: 0 20px;">스케줄 등록</button>
+                            </div>
+                            <div id="backupSchedulesContainer" style="margin-top: 1.5rem;">
+                                <!-- Schedules filled by JS -->
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+                            ${backups.map(b => `
+                                <div style="background: rgba(100,255,218,0.05); border: 1px solid var(--glass-border); padding: 1.5rem; border-radius: 12px; display:flex; flex-direction:column; gap:1rem;">
+                                    <div>
+                                        <div style="font-weight: 800; color: var(--primary); margin-bottom: 0.3rem;">${b.name}</div>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted); font-family:'Courier New';">용량: ${b.size} | 일시: ${new Date(b.at).toLocaleString()}</div>
+                                    </div>
+                                    <div style="display:flex; gap:0.5rem;">
+                                        <button onclick="exploreBackup('${b.name}')" style="flex:1; padding:0.6rem; background:transparent; border: 1px solid var(--primary); color:var(--primary); border-radius:6px; font-size:0.85rem; font-weight: 800; cursor:pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(100,255,218,0.1)'" onmouseout="this.style.background='transparent'">데이터 조회 및 탐색</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                            ${backups.length === 0 ? '<p style="color:var(--text-muted)">로컬 저장소에 백업 파일이 없습니다.</p>' : ''}
+                        </div>
+                    </div>
+                `;
+                loadBackupSchedules();
+
+                // [v1.0.7] Check Hash for Auto-Open Backup Explorer
+                const hash = location.hash;
+                if (hash.startsWith('#backups:explore:')) {
+                    const fileName = decodeURIComponent(hash.split(':')[2]);
+                    if (document.getElementById('backupExplorerModal').style.display !== 'flex') {
+                        // Pass true to skip hash update since it's already there
+                        exploreBackup(fileName, true);
+                    }
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function addBackupSchedule() {
+            const interval_type = document.getElementById('backupScheduleInterval').value;
+            const backup_path = document.getElementById('backupPathInput').value;
+
+            try {
+                const res = await fetch('/api/admin/backups/schedules', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ interval_type, backup_path })
+                });
+                if (res.ok) {
+                    alert('스케줄이 등록되었습니다.');
+                    loadBackupSchedules();
+                } else {
+                    const data = await res.json();
+                    alert('등록 실패: ' + data.error);
+                }
+            } catch (e) { alert('오류: ' + e.message); }
+        }
+
+        async function loadBackupSchedules() {
+            const container = document.getElementById('backupSchedulesContainer');
+            if (!container) return;
+
+            try {
+                const res = await fetch('/api/admin/backups/schedules');
+                const schedules = await res.json();
+
+                if (schedules.length === 0) {
+                    container.innerHTML = '<p style="font-size: 0.8rem; color: var(--text-muted);">등록된 자동 백업 스케줄이 없습니다.</p>';
+                    return;
+                }
+
+                container.innerHTML = `
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem; background: rgba(0,0,0,0.2); border-radius: 8px; overflow: hidden;">
+                        <thead>
+                            <tr style="background: rgba(255,255,255,0.05); color: var(--primary);">
+                                <th style="padding: 10px; text-align: left;">주기</th>
+                                <th style="padding: 10px; text-align: left;">저장 경로</th>
+                                <th style="padding: 10px; text-align: left;">이전 실행</th>
+                                <th style="padding: 10px; text-align: left;">다음 실행</th>
+                                <th style="padding: 10px; text-align: center;">관리</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${schedules.map(s => `
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                    <td style="padding: 10px; font-weight: 800;">${s.interval_type.toUpperCase()}</td>
+                                    <td style="padding: 10px; color: var(--text-muted);">${s.backup_path || '(기본경로)'}</td>
+                                    <td style="padding: 10px;">${s.last_run_at || '-'}</td>
+                                    <td style="padding: 10px; color: var(--accent); font-weight: 800;">${s.next_run_at}</td>
+                                    <td style="padding: 10px; text-align: center;">
+                                        <button onclick="deleteBackupSchedule(${s.id})" style="padding: 3px 8px; background: rgba(255,95,86,0.2); border: 1px solid #ff5f56; color: #ff5f56; border-radius: 4px; cursor: pointer; font-size: 0.7rem;">삭제</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (e) { console.error(e); }
+        }
+
+        async function deleteBackupSchedule(id) {
+            if (!confirm('이 스케줄을 삭제하시겠습니까?')) return;
+            try {
+                const res = await fetch(`/api/admin/backups/schedules/${id}`, { method: 'DELETE' });
+                if (res.ok) loadBackupSchedules();
+            } catch (e) { alert('오류: ' + e.message); }
+        }
+
+        async function runBackup() {
+            const backupPath = document.getElementById('backupPathInput')?.value;
+            const res = await fetch('/api/admin/backup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ backupPath })
+            });
+            if (res.ok) {
+                alert('백업이 성공적으로 생성되었습니다.');
+                loadBackups();
+            }
+        }
+
+        let currentExploreFile = null;
+        let currentExplorePath = null;
+
+        async function switchBackupTab(tab) {
+            document.querySelectorAll('.explorer-tab').forEach(t => t.classList.remove('active'));
+            if (tab === 'chat') {
+                document.getElementById('tabBackupChat').classList.add('active');
+                document.getElementById('explorerSidebar').style.display = 'flex';
+                exploreBackup(currentExploreFile, true);
+            } else {
+                document.getElementById('tabBackupLogs').classList.add('active');
+                document.getElementById('explorerSidebar').style.display = 'none';
+                viewBackupLogs();
+            }
+        }
+
+        async function viewBackupLogs() {
+            const container = document.getElementById('explorerChatContent');
+            container.innerHTML = '<div style="padding: 2rem; text-align: center;"><i class="fas fa-spinner fa-spin"></i> 로그 로딩 중...</div>';
+
+            try {
+                const res = await fetch(`/api/admin/backups/logs?fileName=${currentExploreFile}&backupPath=${currentExplorePath}`);
+                const logs = await res.json();
+
+                // 전역 변수에 저장 (액셀 출력용)
+                window.currentLogs = logs;
+
+                container.innerHTML = `
+                    <div style="padding: 1rem; background: rgba(255,255,255,0.08); border-bottom: 1px solid var(--glass-border); font-weight: 800; color: var(--primary); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(8px); font-size: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                        <span>📊 백업 시스템 로그 (${logs.length}건)</span>
+                        <button onclick="exportToExcel('logs')" class="btn-action" style="padding: 4px 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-file-excel"></i> 액셀 출력
+                        </button>
+                    </div>
+                    <div style="padding: 1rem;">
+                        <table style="width: 100%; border-collapse: collapse; font-family: 'Courier New', monospace; font-size: 0.85rem;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid var(--glass-border); color: var(--primary);">
+                                    <th style="padding: 10px; text-align: left;">시간</th>
+                                    <th style="padding: 10px; text-align: left;">레벨</th>
+                                    <th style="padding: 10px; text-align: left;">카테고리</th>
+                                    <th style="padding: 10px; text-align: left;">메시지</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${logs.map(log => {
+                    const levelColor = log.level === 'ERROR' ? '#ff5f56' : (log.level === 'WARN' ? '#ffbd2e' : '#27c93f');
+                    return `
+                                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                            <td style="padding: 10px; color: #94a3b8; white-space: nowrap;">${new Date(log.created_at).toLocaleString()}</td>
+                                            <td style="padding: 10px; font-weight: 800; color: ${levelColor};">${log.level}</td>
+                                            <td style="padding: 10px; color: var(--primary);">${log.category}</td>
+                                            <td style="padding: 10px; color: #e2e8f0; word-break: break-all;">${log.message}</td>
+                                        </tr>
+                                    `;
+                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } catch (err) {
+                container.innerHTML = `<div style="padding: 2rem; color: var(--notice-red);">로그 조회 실패: ${err.message}</div>`;
+            }
+        }
+
+        async function exploreBackup(fileName, isTabSwitch = false) {
+            const backupPath = document.getElementById('backupPathInput')?.value || '';
+            currentExploreFile = fileName;
+            currentExplorePath = backupPath;
+
+            if (!isTabSwitch) {
+                switchBackupTab('chat');
+
+                // [v1.0.7] Update Hash
+                const newHash = `#backups:explore:${encodeURIComponent(fileName)}`;
+                if (location.hash !== newHash) {
+                    history.pushState(null, null, newHash);
+                }
+                return;
+            }
+
+            // 1. 기본 정보 조회
+            try {
+                const res = await fetch(`/api/admin/backups/explore?fileName=${fileName}&backupPath=${backupPath}`);
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+
+                document.getElementById('backupExplorerModal').style.display = 'flex';
+                document.getElementById('explorerTitle').textContent = `📅 백업 탐색: ${fileName}`;
+
+                // 2. 방 목록 조회
+                const roomsRes = await fetch(`/api/admin/backups/rooms?fileName=${fileName}&backupPath=${backupPath}`);
+                const rooms = await roomsRes.json();
+
+                const roomList = document.getElementById('explorerRoomList');
+                roomList.innerHTML = rooms.map(r => `
+                    <div class="room-card-backup" onclick="viewBackupMessages('${fileName}', '${backupPath}', ${r.id}, '${r.room_name || r.room_identifier}')" 
+                         style="margin-bottom: 0.8rem; padding: 1rem; cursor: pointer; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s;">
+                         <div style="font-weight: 800; font-size: 0.9rem; color: #e2e8f0; margin-bottom: 4px;">${r.room_name || r.room_identifier}</div>
+                         <div style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                             ${r.last_message || '<span style="opacity: 0.5">(대화 없음)</span>'}
+                         </div>
+                    </div>
+                `).join('');
+
+                const contentArea = document.getElementById('explorerChatContent');
+                if (contentArea.innerHTML === '' || contentArea.innerHTML.includes('fas-spinner')) {
+                    contentArea.innerHTML = '<div style="height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-muted);">대화방을 선택하여 과거 메시지를 확인하세요.</div>';
+                }
+
+            } catch (err) {
+                alert('탐색 실패: ' + err.message);
+            }
+        }
+
+        async function viewBackupMessages(fileName, backupPath, roomId, roomName) {
+            const container = document.getElementById('explorerChatContent');
+            container.innerHTML = '<div style="padding: 2rem; text-align: center;"><i class="fas fa-spinner fa-spin"></i> 로딩 중...</div>';
+
+            try {
+                const res = await fetch(`/api/admin/backups/messages?fileName=${fileName}&backupPath=${backupPath}&roomId=${roomId}`);
+                const messages = await res.json();
+
+                // 전역 변수에 저장 (액셀 출력용)
+                window.currentChatMessages = messages;
+                window.currentChatRoomName = roomName;
+
+                container.innerHTML = `
+                    <div style="padding: 1rem; background: rgba(255,255,255,0.08); border-bottom: 1px solid var(--glass-border); font-weight: 800; color: var(--primary); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(8px); font-size: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                        <span># ${roomName} 기록</span>
+                        <button onclick="exportToExcel('chat')" class="btn-action" style="padding: 4px 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-file-excel"></i> 액셀 출력
+                        </button>
+                    </div>
+                    <div style="padding: 1.5rem; text-align: left !important;">
+                        ${messages.map(m => {
+                    const isNotice = m.type === 'notice';
+                    const isSystem = m.sender_id === 1;
+                    const timeStr = new Date(m.created_at).toLocaleString('ko-KR', {
+                        year: '2-digit', month: '2-digit', day: '2-digit',
+                        hour: '2-digit', minute: '2-digit'
+                    });
+                    return `
+                                <div style="display: block !important; width: 100% !important; clear: both !important; margin-bottom: 25px !important; text-align: left !important; overflow: hidden !important;">
+                                    <div style="font-size: 0.75rem !important; color: #94a3b8 !important; margin-bottom: 6px !important; text-align: left !important; display: block !important; width: 100% !important;">
+                                        ${m.senderName || (isSystem ? '[SYSTEM]' : '알수없음')} · ${timeStr}
+                                    </div>
+                                    <div style="
+                                        display: table !important;
+                                        width: auto !important;
+                                        max-width: 80% !important;
+                                        background: ${isNotice ? 'rgba(255, 95, 86, 0.25)' : 'rgba(255,255,255,0.1)'} !important;
+                                        border: 1px solid ${isNotice ? '#ff5f56' : 'rgba(255,255,255,0.1)'} !important;
+                                        color: #ffffff !important;
+                                        padding: 12px 18px !important;
+                                        border-radius: 4px 20px 20px 20px !important;
+                                        font-size: 0.95rem !important;
+                                        line-height: 1.6 !important;
+                                        text-align: left !important;
+                                        direction: ltr !important;
+                                        float: left !important;
+                                        clear: both !important;
+                                        white-space: pre-wrap !important;
+                                        word-break: break-all !important;
+                                        box-shadow: 0 4px 15px rgba(0,0,0,0.25) !important;
+                                    ">
+                                        <div style="text-align: left !important; display: block !important; width: 100% !important; direction: ltr !important;">${m.content}</div>
+                                    </div>
+                                </div>
+                            `;
+                }).join('')}
+                    </div>
+                `;
+                container.scrollTop = 0;
+            } catch (err) {
+                container.innerHTML = `<div style="padding: 2rem; color: var(--notice-red);">오류: ${err.message}</div>`;
+            }
+        }
+
+        function exportToExcel(type) {
+            try {
+                let data = [];
+                let fileName = "";
+                let sheetName = "";
+
+                if (type === 'chat') {
+                    if (!window.currentChatMessages || window.currentChatMessages.length === 0) return alert("출력할 데이터가 없습니다.");
+                    data = window.currentChatMessages.map(m => ({
+                        "시간": new Date(m.created_at).toLocaleString(),
+                        "작성자": m.senderName || (m.sender_id === 1 ? "[SYSTEM]" : "알수없음"),
+                        "내용": m.content,
+                        "구분": m.type === 'notice' ? '공지사항' : '일반'
+                    }));
+                    fileName = `chat_history_${window.currentChatRoomName}_${currentExploreFile}.xlsx`;
+                    sheetName = "대화기록";
+                } else if (type === 'logs') {
+                    if (!window.currentLogs || window.currentLogs.length === 0) return alert("출력할 데이터가 없습니다.");
+                    data = window.currentLogs.map(l => ({
+                        "시간": new Date(l.created_at).toLocaleString(),
+                        "레벨": l.level,
+                        "카테고리": l.category,
+                        "메시지": l.message,
+                        "IP": l.ip_address || "-"
+                    }));
+                    fileName = `system_logs_${currentExploreFile}.xlsx`;
+                    sheetName = "시스템로그";
+                }
+
+                const worksheet = XLSX.utils.json_to_sheet(data);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+                XLSX.writeFile(workbook, fileName);
+            } catch (err) {
+                alert("액셀 생성 실패: " + err.message);
+            }
+        }
+
+        function closeBackupExplorer() {
+            document.getElementById('backupExplorerModal').style.display = 'none';
+            // [v1.0.7] Restore Hash
+            history.pushState(null, null, '#backups');
+        }
+
+        // --- Theme & Notice Implementation ---
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('adminTheme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('themeIcon');
+            if (icon) {
+                icon.innerHTML = theme === 'light' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            }
+        }
+
+        // Initial Theme Load
+        const savedTheme = localStorage.getItem('adminTheme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        window.addEventListener('DOMContentLoaded', () => updateThemeIcon(savedTheme));
+
+        async function viewParticipants(roomId, roomName) {
+            try {
+                const res = await fetch(`/api/rooms/${roomId}/members`);
+                const members = await res.json();
+                const container = document.getElementById('participantList');
+                document.getElementById('participantTitle').textContent = `[${roomName}] 참여자 목록`;
+
+                container.innerHTML = members.map(m => `
+                    <div style="display: flex; align-items: center; gap: 1rem; padding: 0.8rem; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 0.5rem;">
+                        <div style="width: 32px; height: 32px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #0a192f; font-size: 0.8rem;">
+                            ${m.username[0].toUpperCase()}
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; font-size: 0.9rem;">${m.username}</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">${m.joined_at || '알 수 없는 일시'} 참여</div>
+                        </div>
+                        <div style="font-size: 0.7rem; color: ${m.isOnline ? '#64ffda' : '#8892b0'};">
+                            ${m.isOnline ? '● 온라인' : '○ 오프라인'}
+                        </div>
+                    </div>
+                `).join('');
+
+                document.getElementById('participantModal').style.display = 'flex';
+            } catch (err) { console.error(err); }
+        }
+
+        function closeParticipantModal() {
+            document.getElementById('participantModal').style.display = 'none';
+        }
+
+        function showNoticeModal() {
+            document.getElementById('noticeModal').style.display = 'flex';
+        }
+
+        function closeNoticeModal() {
+            document.getElementById('noticeModal').style.display = 'none';
+        }
+
+        async function sendNotice() {
+            const content = document.getElementById('noticeContent').value;
+            if (!content) return alert('공지 내용을 입력하세요.');
+
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = '발송 중...';
+
+            try {
+                const res = await fetch('/api/admin/notice', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    alert('전체 공지가 발송되었습니다.');
+                    document.getElementById('noticeContent').value = '';
+                    closeNoticeModal();
+
+                    const noticeRoomId = data.message.roomId;
+
+                    // 1. 공지 내역 리스트 갱신 (공지 관리 탭이 활성화된 경우)
+                    if (document.getElementById('noticesView').classList.contains('active')) {
+                        loadNotices();
+                    }
+
+                    // 2. 현재 모니터링 중인 채팅방이 공지가 발송된 방이라면 메시지 목록 갱신
+                    if (currentMonitoredRoomId == noticeRoomId) {
+                        const currentName = document.getElementById('currentRoomName').textContent;
+                        loadMessages(noticeRoomId, currentName);
+                    }
+                    loadRooms(); // 목록의 '최신 메시지' 요약 갱신
+
+                    // 3. 대시보드 통계 및 최근 로그 갱신
+                    if (document.getElementById('dashboardView').classList.contains('active')) {
+                        loadStats();
+                        loadDashboardLogs();
+                    }
+                } else {
+                    alert('공지 발송 실패');
+                }
+            } catch (err) {
+                alert('연결 오류: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }
+
+        async function loadNotices() {
+            const container = document.getElementById('noticeListContainer');
+            try {
+                const res = await fetch('/api/admin/notices');
+                const notices = await res.json();
+
+                if (notices.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; padding: 3rem; color: var(--text-muted);">발송된 공지 내역이 없습니다.</div>';
+                    return;
+                }
+
+                container.innerHTML = notices.map(n => {
+                    const d = new Date(n.created_at.replace(' ', 'T'));
+                    const dateStr = d.toLocaleDateString('ko-KR') + ' ' + d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+                    const readPercent = n.total_participants > 0 ? Math.round((n.read_count / n.total_participants) * 100) : 0;
+
+                    return `
+                        <div class="glass-panel" style="margin-bottom: 0; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; border-left: 4px solid var(--notice-red);">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.5rem;">
+                                        <span style="background: var(--notice-red); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 800;">긴급 공지</span>
+                                        <span style="font-size: 0.8rem; color: var(--text-muted);">${dateStr}</span>
+                                    </div>
+                                    <div style="font-size: 1rem; font-weight: 600; line-height: 1.5; white-space: pre-wrap;">${n.content}</div>
+                                </div>
+                                <div style="text-align: right; min-width: 120px;">
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">확인 현황</div>
+                                    <div style="font-size: 1.2rem; font-weight: 800; color: ${readPercent === 100 ? '#10b981' : 'var(--primary)'}">${n.read_count} / ${n.total_participants} <span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">(${readPercent}%)</span></div>
+                                    <div style="display: flex; gap: 6px; margin-top: 8px;">
+                                        <button onclick="showNoticeStats(${n.id})" style="flex: 1; padding: 6px; background: rgba(100, 255, 218, 0.1); border: 1px solid var(--primary); color: var(--primary); border-radius: 6px; font-size: 0.75rem; cursor: pointer;">상세</button>
+                                        <button onclick="editNotice(${n.id}, this.dataset.content)" data-content="${n.content.replace(/"/g, '&quot;')}" style="padding: 6px 10px; background: transparent; border: 1px solid #ffd700; color: #ffd700; border-radius: 6px; font-size: 0.75rem; cursor: pointer;"><i class="fas fa-edit"></i></button>
+                                        <button onclick="deleteNotice(${n.id})" style="padding: 6px 10px; background: transparent; border: 1px solid #ff5f56; color: #ff5f56; border-radius: 6px; font-size: 0.75rem; cursor: pointer;"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden;">
+                                <div style="height: 100%; width: ${readPercent}%; background: ${readPercent === 100 ? '#10b981' : 'var(--notice-red)'}; transition: width 0.5s;"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                container.innerHTML = `<div style="text-align: center; color: var(--notice-red); padding: 2rem;">오류: ${err.message}</div>`;
+            }
+        }
+
+        async function showNoticeStats(messageId, isBackground = false) {
+            currentStatsMessageId = messageId;
+            document.getElementById('noticeStatsModal').style.display = 'flex';
+            const body = document.getElementById('noticeStatsBody');
+
+            if (!isBackground) {
+                body.innerHTML = '<div style="text-align:center; padding: 2rem;"><i class="fas fa-spinner fa-spin"></i> 데이터를 불러오는 중...</div>';
+            }
+
+            try {
+                const res = await fetch(`/api/admin/notice/${messageId}/readers`);
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.error);
+
+                // 스케줄 정보 가져오기
+                const schedRes = await fetch(`/api/admin/notice/${messageId}/schedule`);
+                const schedule = await schedRes.json();
+
+                body.innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="background: rgba(16, 185, 129, 0.1); padding: 1rem; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2); text-align: center;">
+                            <div style="font-size: 0.75rem; color: #10b981; font-weight: 700; margin-bottom: 4px;">읽음</div>
+                            <div style="font-size: 1.2rem; font-weight: 800; color: #059669;">${data.readCount}명</div>
+                        </div>
+                        <div style="background: rgba(255, 95, 86, 0.1); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255, 95, 86, 0.2); text-align: center;">
+                            <div style="font-size: 0.75rem; color: var(--notice-red); font-weight: 700; margin-bottom: 4px;">안 읽음</div>
+                            <div style="font-size: 1.2rem; font-weight: 800; color: var(--notice-red); text-shadow: 0 0 10px rgba(255, 95, 86, 0.2);">${data.unreadCount}명</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 재발송 제어 섹션 -->
+                    <div class="glass-panel" style="margin-bottom: 1.5rem; padding: 1rem; border: 1px dashed var(--notice-red);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <div style="font-size: 0.85rem; font-weight: 700; color: var(--notice-red);">📡 재발송 제어</div>
+                            ${data.unreadCount > 0 ? `<button onclick="resendNotice(${messageId})" class="btn-action" style="font-size: 0.7rem; padding: 4px 10px; background: var(--notice-red); color: white;">지금 즉시 재발송</button>` : ''}
+                        </div>
+                        
+                        <div style="background: rgba(0,0,0,0.2); padding: 0.8rem; border-radius: 6px;">
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">주기적 자동 재발송 (분 단위)</div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="number" id="noticeScheduleInterval" placeholder="분" value="${schedule ? schedule.interval_minutes : ''}" 
+                                    style="width: 70px; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 4px; color: var(--text); padding: 4px 8px; font-size: 0.8rem;">
+                                <button onclick="setNoticeSchedule(${messageId})" class="btn-action" style="flex: 1; font-size: 0.7rem; padding: 4px;">${schedule ? '업데이트' : '스케줄 설정'}</button>
+                                ${schedule ? `<button onclick="deleteNoticeSchedule(${messageId})" class="btn-action" style="font-size: 0.7rem; padding: 4px; border-color: #ff5f56; color: #ff5f56;">취소</button>` : ''}
+                            </div>
+                            ${schedule ? `<div style="font-size: 0.65rem; color: #10b981; margin-top: 6px;">다음 발송 예정: ${schedule.next_run_at}</div>` : ''}
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 0.5rem; font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">미확인 인원 (${data.unreadCount})</div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; max-height: 100px; overflow-y: auto; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 6px;" class="custom-scroll">
+                        ${data.unreaders.length > 0 ? data.unreaders.map(u => `
+                            <span style="padding: 4px 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 4px; font-size: 0.75rem;">${u.username}</span>
+                        `).join('') : '<span style="color: var(--text-muted); font-size: 0.75rem;">모든 인원이 확인했습니다.</span>'}
+                    </div>
+
+                    <div style="margin-bottom: 0.5rem; font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">확인 완료 인원 (${data.readCount})</div>
+                    <div style="max-height: 200px; overflow-y: auto;" class="custom-scroll">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
+                            <tbody>
+                                ${data.readers.map(r => `
+                                    <tr style="border-bottom: 1px solid var(--glass-border);">
+                                        <td style="padding: 8px 0; font-weight: 600;">${r.username}</td>
+                                        <td style="padding: 8px 0; text-align: right; color: var(--text-muted); font-size: 0.7rem;">(KST) ${r.read_at}</td>
+                                    </tr>
+                                `).join('')}
+                                ${data.readers.length === 0 ? '<tr><td colspan="2" style="text-align:center; padding: 1rem; color: var(--text-muted);">아직 읽은 사람이 없습니다.</td></tr>' : ''}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } catch (err) {
+                body.innerHTML = `<div style="color: var(--notice-red); text-align: center; padding: 2rem;">${err.message}</div>`;
+            }
+        }
+
+        function closeNoticeStatsModal() {
+            document.getElementById('noticeStatsModal').style.display = 'none';
+            currentStatsMessageId = null;
+        }
+
+        async function resendNotice(messageId) {
+            if (!confirm('미확인 인원들에게 지금 즉시 공지를 재발송하시겠습니까?')) return;
+            try {
+                const res = await fetch(`/api/admin/notice/${messageId}/resend`, { method: 'POST' });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`${data.count}명에게 재발송되었습니다.`);
+                    showNoticeStats(messageId);
+                } else {
+                    alert('재발송 실패: ' + data.error);
+                }
+            } catch (err) { alert('오류: ' + err.message); }
+        }
+
+        async function setNoticeSchedule(messageId) {
+            const interval = document.getElementById('noticeScheduleInterval').value;
+            if (!interval || interval < 1) return alert('올바른 주기를 입력하세요 (최소 1분)');
+
+            try {
+                const res = await fetch(`/api/admin/notice/${messageId}/schedule`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ interval: parseInt(interval) })
+                });
+                if (res.ok) {
+                    alert('재발송 스케줄이 설정되었습니다.');
+                    showNoticeStats(messageId);
+                } else {
+                    alert('설정 실패');
+                }
+            } catch (err) { alert('오류: ' + err.message); }
+        }
+
+        async function deleteNoticeSchedule(messageId) {
+            if (!confirm('재발송 스케줄을 취소하시겠습니까?')) return;
+            try {
+                const res = await fetch(`/api/admin/notice/${messageId}/schedule`, { method: 'DELETE' });
+                if (res.ok) {
+                    alert('스케줄이 취소되었습니다.');
+                    showNoticeStats(messageId);
+                }
+            } catch (err) { alert('오류: ' + err.message); }
+        }
+
+        // [v2.5.2] Actions
+        async function deleteRoom(roomId, event) {
+            if (event) event.stopPropagation();
+            if (!confirm('경고: 대화방을 삭제하시겠습니까?\n모든 메시지와 참여자 정보가 영구 삭제됩니다.')) return;
+
+            try {
+                const res = await fetch(`/api/admin/rooms/${roomId}`, { method: 'DELETE' });
+                if (res.ok) {
+                    alert('대화방이 삭제되었습니다.');
+                    loadRooms(); // Refresh list
+                    if (currentMonitoredRoomId == roomId) {
+                        document.getElementById('chatPreview').innerHTML = '';
+                        document.getElementById('currentRoomName').textContent = '대화 리스트';
+                        document.getElementById('currentRoomInfo').textContent = '삭제된 방입니다.';
+                    }
+                } else {
+                    const data = await res.json();
+                    alert(data.error || '삭제 실패');
+                }
+            } catch (e) { alert('오류: ' + e.message); }
+        }
+
+        async function clearRoomMessages(roomId, event) {
+            if (event) event.stopPropagation();
+            if (!confirm('경고: 해당 대화방의 모든 메시지를 삭제하고 초기화하시겠습니까?')) return;
+
+            try {
+                const res = await fetch(`/api/admin/rooms/${roomId}/clear`, { method: 'POST' });
+                if (res.ok) {
+                    alert('대화 내용이 초기화되었습니다.');
+                    loadRooms(); // Refresh list
+                    if (currentMonitoredRoomId == roomId) {
+                        const currentName = document.getElementById('currentRoomName').textContent;
+                        loadMessages(roomId, currentName);
+                    }
+                } else {
+                    alert('초기화 실패');
+                }
+            } catch (e) { alert('오류: ' + e.message); }
+        }
+
+        async function editNotice(id, oldContent) {
+            const newContent = prompt('공지 내용을 수정하세요:', oldContent);
+            if (newContent === null || newContent === oldContent) return;
+            if (!newContent.trim()) return alert('내용을 입력해야 합니다.');
+
+            try {
+                const res = await fetch(`/api/admin/notices/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: newContent })
+                });
+                if (res.ok) {
+                    alert('수정되었습니다.');
+                    loadNotices();
+                } else alert('수정 실패');
+            } catch (e) { alert('오류: ' + e.message); }
+        }
+
+        async function deleteNotice(id) {
+            if (!confirm('이 공지사항을 영구 삭제하시겠습니까?\n발송 기록과 스케줄도 모두 삭제됩니다.')) return;
+            try {
+                const res = await fetch(`/api/admin/notices/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    loadNotices();
+                } else alert('삭제 실패');
+            } catch (e) { alert('오류: ' + e.message); }
+        }
+
+        // --- Directory Explorer Logic ---
+        let explorerPath = "";
+        let currentParentPath = "";
+
+        async function openDirExplorer() {
+            const startPath = document.getElementById('backupPathInput').value || "";
+            document.getElementById('dirExplorerModal').style.display = 'flex';
+            await loadDrives();
+            loadDir(startPath);
+        }
+
+        async function loadDrives() {
+            try {
+                const res = await fetch('/api/admin/system/drives');
+                const drives = await res.json();
+                const container = document.getElementById('driveList');
+                container.innerHTML = drives.map(d => `
+                    <button onclick="loadDir('${d}/')" style="padding: 4px 8px; font-size: 0.75rem; background: rgba(100,255,218,0.1); border: 1px solid var(--primary); color: var(--primary); border-radius: 4px; cursor: pointer;">${d}</button>
+                `).join('');
+            } catch (e) { console.error('Drive load error:', e); }
+        }
+
+        async function createNewFolder() {
+            const folderName = document.getElementById('newFolderName').value.trim();
+            if (!folderName) return alert('폴더명을 입력하세요.');
+            if (!explorerPath) return alert('유효한 경로가 아닙니다.');
+
+            try {
+                const res = await fetch('/api/admin/system/mkdir', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path: explorerPath, folderName })
+                });
+                const result = await res.json();
+                if (res.ok) {
+                    alert('폴더가 생성되었습니다.');
+                    document.getElementById('newFolderName').value = '';
+                    loadDir(explorerPath);
+                } else throw new Error(result.error);
+            } catch (err) { alert('생성 실패: ' + err.message); }
+        }
+
+        function closeDirExplorer() {
+            document.getElementById('dirExplorerModal').style.display = 'none';
+        }
+
+        async function loadDir(path = "") {
+            const list = document.getElementById('dirExplorerList');
+            list.innerHTML = '<div style="padding: 2rem; text-align: center;"><i class="fas fa-spinner fa-spin"></i> 탐색 중...</div>';
+
+            try {
+                const res = await fetch(`/api/admin/system/browse?path=${encodeURIComponent(path)}`);
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+
+                explorerPath = data.currentPath;
+                currentParentPath = data.parentPath;
+                document.getElementById('dirExplorerCurrent').textContent = explorerPath;
+
+                list.innerHTML = data.directories.map(d => `
+                    <div onclick="loadDir('${d.path.replace(/\\/g, '/')}')" style="padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                        <i class="fas fa-folder" style="color: #edb95e; font-size: 1.1rem;"></i>
+                        <span style="font-size: 0.9rem; color: #e2e8f0;">${d.name}</span>
+                    </div>
+                `).join('') || '<div style="padding: 3rem; text-align: center; color: var(--text-muted);">하위 폴더가 없습니다.</div>';
+            } catch (err) {
+                list.innerHTML = `<div style="padding: 2rem; text-align: center; color: var(--notice-red);">조회 실패: ${err.message}</div>`;
+            }
+        }
+
+        function goParentDir() {
+            if (currentParentPath && currentParentPath !== explorerPath) {
+                loadDir(currentParentPath);
+            }
+        }
+
+        function selectCurrentDir() {
+            document.getElementById('backupPathInput').value = explorerPath;
+            closeDirExplorer();
+        }
+    </script>
+
+    <!-- Notice Modal -->
+    <div id="noticeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 style="color: var(--notice-red);">📢 긴급 공지 발송</h2>
+                <button class="close-btn" onclick="closeNoticeModal()">&times;</button>
+            </div>
+            <div style="margin-bottom: 1.5rem; font-size: 0.85rem; color: var(--text-muted);">
+                이 메시지는 **전체 대화방**에 시스템 공지 형식으로 브로드캐스트됩니다.
+            </div>
+            <div class="form-group">
+                <label>공지 내용</label>
+                <textarea id="noticeContent" rows="5" placeholder="전체 유저에게 보낼 공지 사항을 입력하세요."
+                    style="width: 100%; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text); padding: 1rem; outline: none; resize: none;"></textarea>
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <button class="btn-action" onclick="sendNotice()"
+                    style="flex: 1; background: var(--notice-red); color: white; border-color: var(--notice-red);">공지
+                    발송</button>
+                <button class="btn-action" onclick="closeNoticeModal()"
+                    style="flex: 1; border-color: var(--text-muted); color: var(--text-muted);">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Participant Modal -->
+    <div id="participantModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 id="participantTitle" style="color: var(--primary); font-size: 1.1rem;">참여자 목록</h2>
+                <button class="close-btn" onclick="closeParticipantModal()">&times;</button>
+            </div>
+            <div id="participantList" style="margin-top: 1rem; max-height: 400px; overflow-y: auto;">
+                <!-- Filled dynamically -->
+            </div>
+            <div style="margin-top: 1.5rem; text-align: center;">
+                <button class="btn-action" onclick="closeParticipantModal()" style="width: 100%;">닫기</button>
+            </div>
+        </div>
+    </div>
+    <!-- Notice Stats Modal -->
+    <div id="noticeStatsModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 style="color: var(--notice-red); font-size: 1.1rem;">📊 공지사항 확인 현황</h2>
+                <button class="close-btn" onclick="closeNoticeStatsModal()">&times;</button>
+            </div>
+            <div id="noticeStatsBody" style="margin-top: 1rem;">
+                <!-- Filled dynamically -->
+            </div>
+            <div style="margin-top: 1.5rem; text-align: center;">
+                <button class="btn-action" onclick="closeNoticeStatsModal()" style="width: 100%;">닫기</button>
+            </div>
+        </div>
+    </div>
+    <!-- Create User Modal -->
+    <div id="createUserModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 style="color: var(--primary);">👤 신규 사용자 등록</h2>
+                <button class="close-btn" onclick="closeCreateUserModal()">&times;</button>
+            </div>
+            <div class="form-group" style="margin-top: 1rem;">
+                <label>아이디</label>
+                <input type="text" id="newUsername" placeholder="사용자 아이디"
+                    style="width: 100%; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text); padding: 0.8rem; outline: none; margin-bottom: 1rem;">
+                <label>비밀번호</label>
+                <input type="password" id="newPassword" placeholder="초기 비밀번호"
+                    style="width: 100%; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text); padding: 0.8rem; outline: none;">
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button class="btn-action" onclick="createUser()"
+                    style="flex: 1; background: var(--primary); color: #0a192f; border-color: var(--primary); font-weight:800;">등록하기</button>
+                <button class="btn-action" onclick="closeCreateUserModal()"
+                    style="flex: 1; border-color: var(--text-muted); color: var(--text-muted);">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editUserModal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2 style="color: var(--primary);">🛠️ 사용자 상세 구성</h2>
+                <button class="close-btn" onclick="closeEditUserModal()">&times;</button>
+            </div>
+            <input type="hidden" id="editUserId">
+
+            <div style="display: flex; flex-direction: column; gap: 1.2rem; margin-top: 1.5rem;">
+                <div class="form-group">
+                    <label
+                        style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">사용자명</label>
+                    <input type="text" id="editUsername"
+                        style="width: 100%; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text); padding: 0.8rem; outline: none;">
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label
+                            style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem;">접속
+                            기기 유형</label>
+                        <input type="text" id="editDeviceType" readonly
+                            style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text-muted); padding: 0.6rem; outline: none; font-size: 0.8rem;">
+                    </div>
+                    <div class="form-group" style="flex: 2;">
+                        <label
+                            style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem;">상세
+                            OS 정보</label>
+                        <input type="text" id="editOsInfo" readonly
+                            style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text-muted); padding: 0.6rem; outline: none; font-size: 0.8rem;">
+                    </div>
+                </div>
+
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--glass-border);">
+                    <div>
+                        <div style="font-weight: 700; font-size: 0.9rem;">관리자 권한</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted);">시스템 관리 기능을 허용합니다.</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="editIsAdmin">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.5rem;">
+                        <label style="font-size: 0.8rem; color: var(--text-muted);">기기 고유 식별자 (ID)</label>
+                        <button onclick="fetchLatestMac()"
+                            style="background: rgba(100, 255, 218, 0.1); border: 1px solid var(--primary); color: var(--primary); font-size: 0.65rem; padding: 2px 8px; border-radius: 4px; cursor: pointer;"><i
+                                class="fas fa-sync-alt"></i> 가져오기</button>
+                    </div>
+                    <input type="text" id="editMacAddress" placeholder="기기 고유 식별값"
+                        style="width: 100%; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text); padding: 0.8rem; outline: none; font-family: 'Courier New';">
+                </div>
+
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(100,255,218,0.03); border-radius: 8px; border: 1px solid var(--primary);">
+                    <div>
+                        <div style="font-weight: 700; font-size: 0.9rem; color: var(--primary);">기기 식별자 매핑 강제</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted);">등록된 기기에서만 접속을 허용합니다.</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="editMacBinding">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <button onclick="resetPassword(document.getElementById('editUserId').value)"
+                    style="width:100%; padding:0.8rem; background:none; border:1px dashed #ff5f56; color:#ff5f56; border-radius:8px; cursor:pointer; font-size:0.8rem; margin-bottom:1rem;"><i
+                        class="fas fa-key"></i> 비밀번호를 1234로 초기화</button>
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn-action" onclick="saveUserChanges()"
+                        style="flex: 2; background: var(--primary); color: #0a192f; border-color: var(--primary); font-weight: 800;">저장하기</button>
+                    <button class="btn-action" onclick="closeEditUserModal()"
+                        style="flex: 1; border-color: var(--text-muted); color: var(--text-muted);">취소</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Backup Explorer Modal -->
+    <div id="backupExplorerModal" class="modal">
+        <div class="modal-content"
+            style="max-width: 1000px; height: 85vh; display: flex; flex-direction: column; padding: 0; gap: 0; overflow: hidden; background: #0f172a; border: 1px solid var(--primary);">
+            <div class="modal-header"
+                style="padding: 0; border-bottom: 1px solid var(--glass-border); flex-direction: column; align-items: stretch;">
+                <div
+                    style="padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                    <h2 id="explorerTitle" style="color: var(--primary); font-size: 1.1rem; margin: 0;">📅 백업 데이터 탐색기
+                    </h2>
+                    <button class="close-btn" onclick="closeBackupExplorer()">&times;</button>
+                </div>
+                <div style="display: flex; background: rgba(0,0,0,0.2); padding: 0 1rem;">
+                    <div id="tabBackupChat" class="explorer-tab active" onclick="switchBackupTab('chat')">
+                        <i class="fas fa-comments"></i> 대화방 기록
+                    </div>
+                    <div id="tabBackupLogs" class="explorer-tab" onclick="switchBackupTab('logs')">
+                        <i class="fas fa-list-alt"></i> 시스템 로그
+                    </div>
+                </div>
+            </div>
+            <div id="explorerMainArea" style="flex: 1; display: flex; overflow: hidden;">
+                <!-- 좌측 방 목록 (조회 모드일 때만 보임) -->
+                <div id="explorerSidebar"
+                    style="width: 300px; border-right: 1px solid var(--glass-border); display: flex; flex-direction: column;">
+                    <div
+                        style="padding: 0.8rem; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); background: rgba(0,0,0,0.2);">
+                        대화방 목록</div>
+                    <div id="explorerRoomList" style="flex: 1; overflow-y: auto; padding: 0.8rem;"
+                        class="custom-scroll">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+                <!-- 우측 콘텐츠 내용 -->
+                <div id="explorerChatContent" style="flex: 1; overflow-y: auto; background: rgba(0,0,0,0.1);"
+                    class="custom-scroll">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+            <div
+                style="padding: 1rem; text-align: right; background: rgba(0,0,0,0.2); border-top: 1px solid var(--glass-border);">
+                <button class="btn-action" onclick="closeBackupExplorer()" style="min-width: 100px;">탐색 종료</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Directory Explorer Modal -->
+    <div id="dirExplorerModal" class="modal">
+        <div class="modal-content"
+            style="max-width: 600px; height: 75vh; display: flex; flex-direction: column; padding: 0; background: #0f172a; border: 1px solid var(--primary); overflow: hidden; gap: 0;">
+            <div class="modal-header" style="padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--glass-border);">
+                <h2 style="color: var(--primary); font-size: 1.1rem; margin: 0;"><i class="fas fa-folder-open"></i> 서버
+                    디렉토리 찾아보기</h2>
+                <button class="close-btn" onclick="closeDirExplorer()">&times;</button>
+            </div>
+
+            <div
+                style="padding: 1rem 1.2rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--glass-border); display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <div style="display: flex; gap: 5px; align-items: center;" id="driveList">
+                    <!-- Drives filled here -->
+                </div>
+                <div style="height: 20px; width: 1px; background: var(--glass-border); margin: 0 5px;"></div>
+                <div style="display: flex; gap: 8px; flex: 1;">
+                    <input type="text" id="newFolderName" placeholder="새 폴더명"
+                        style="flex:1; padding: 5px 10px; font-size: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 4px; color: #fff;">
+                    <button class="btn-action" onclick="createNewFolder()"
+                        style="padding: 5px 12px; font-size: 0.75rem; background: var(--accent); color: #000; border: none;"><i
+                            class="fas fa-folder-plus"></i> 생성</button>
+                </div>
+            </div>
+
+            <div style="flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 1.2rem;">
+                <div id="dirExplorerCurrent"
+                    style="padding: 12px; background: rgba(0,0,0,0.4); font-size: 0.8rem; color: #64ffda; word-break: break-all; margin-bottom: 15px; border-radius: 6px; border: 1px solid rgba(100, 255, 218, 0.2); font-family: 'Courier New', monospace;">
+                    /path/loading...
+                </div>
+
+                <div id="dirExplorerList"
+                    style="flex: 1; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid var(--glass-border);"
+                    class="custom-scroll">
+                    <!-- Dirs filled here -->
+                </div>
+            </div>
+
+            <div
+                style="padding: 1.2rem; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); border-top: 1px solid var(--glass-border);">
+                <button class="btn-action" onclick="goParentDir()" style="font-size: 0.85rem; padding: 8px 15px;">
+                    <i class="fas fa-arrow-up"></i> 상위 폴더
+                </button>
+                <button class="btn-action" onclick="selectCurrentDir()"
+                    style="background: var(--primary); color: #0a192f; border: none; font-weight: 800; padding: 8px 20px;">
+                    현재 경로 선택
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

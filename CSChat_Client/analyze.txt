@@ -1,0 +1,371 @@
+Resolving dependencies...
+Downloading packages...
+  archive 4.0.7 (4.0.9 available)
+  audioplayers 5.2.1 (6.6.0 available)
+! audioplayers_android 4.0.3 from path local_plugins\audioplayers_android (overridden)
+  audioplayers_darwin 5.0.2 (6.4.0 available)
+  audioplayers_linux 3.1.0 (4.2.1 available)
+  audioplayers_platform_interface 6.1.0 (7.1.1 available)
+  audioplayers_web 4.1.0 (5.2.0 available)
+  audioplayers_windows 3.1.0 (4.3.0 available)
+  characters 1.4.0 (1.4.1 available)
+  chewie 1.7.5 (1.13.0 available)
+  dbus 0.7.11 (0.7.12 available)
+  device_info_plus 11.5.0 (12.3.0 available)
+  ffi 2.1.5 (2.2.0 available)
+  file_picker 8.3.7 (10.3.10 available)
+  flutter_launcher_icons 0.13.1 (0.14.4 available)
+! flutter_lints 6.0.0 (overridden)
+  flutter_local_notifications 18.0.1 (20.1.0 available)
+  flutter_local_notifications_linux 5.0.0 (7.0.0 available)
+  flutter_local_notifications_platform_interface 8.0.0 (10.0.0 available)
+  image 4.7.2 (4.8.0 available)
+  js 0.6.7 (0.7.2 available)
+  json_annotation 4.10.0 (4.11.0 available)
+  matcher 0.12.17 (0.12.19 available)
+  material_color_utilities 0.11.1 (0.13.0 available)
+  meta 1.17.0 (1.18.1 available)
+  objective_c 9.2.5 (9.3.0 available)
+  package_info_plus 4.2.0 (9.0.0 available)
+  package_info_plus_platform_interface 2.0.1 (3.2.1 available)
+  permission_handler 11.4.0 (12.0.1 available)
+  permission_handler_android 12.1.0 (13.0.1 available)
+  petitparser 7.0.1 (7.0.2 available)
+  posix 6.0.3 (6.5.0 available)
+! shared_preferences_android 2.4.20 from path local_plugins\shared_preferences_android (overridden)
+  source_span 1.10.1 (1.10.2 available)
+  test_api 0.7.7 (0.7.10 available)
+  timezone 0.10.1 (0.11.0 available)
+  url_launcher_ios 6.3.6 (6.4.1 available)
+  uuid 4.5.2 (4.5.3 available)
+  wakelock_plus 1.1.4 (1.4.0 available)
+  win32 5.15.0 (6.0.0 available)
+  win32_registry 2.1.0 (3.0.2 available)
+  window_manager 0.4.3 (0.5.1 available)
+Got dependencies!
+39 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing CSChat_Client...                                      
+
+   info - The prefix 'IO' isn't a lower_case_with_underscores identifier - lib\main.dart:7:60 - library_prefixes
+warning - Unused import: 'dart:typed_data' - lib\main.dart:14:8 - unused_import
+   info - The imported package 'path' isn't a dependency of the importing package - lib\main.dart:19:8 - depend_on_referenced_packages
+   info - Don't invoke 'print' in production code - lib\main.dart:103:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:110:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:128:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:130:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:157:5 - avoid_print
+warning - The value of the local variable 'roomId' isn't used - lib\main.dart:163:15 - unused_local_variable
+   info - Don't invoke 'print' in production code - lib\main.dart:166:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:186:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:216:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:227:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:238:11 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:241:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:247:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:253:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:257:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:286:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:362:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:374:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:393:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:397:38 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:398:35 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:401:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:458:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:464:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:472:11 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:480:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:512:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:517:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:531:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:547:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:673:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:676:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:688:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:709:21 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:718:9 - avoid_print
+warning - The declaration '_requestBatteryOptimizationExemption' isn't referenced - lib\main.dart:723:16 - unused_element
+   info - Don't invoke 'print' in production code - lib\main.dart:728:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:732:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:745:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:769:13 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:790:13 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:804:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:833:17 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:835:17 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:838:15 - avoid_print
+   info - Don't use 'BuildContext's across async gaps - lib\main.dart:844:15 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\main.dart:850:34 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\main.dart:854:15 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\main.dart:861:30 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\main.dart:864:28 - use_build_context_synchronously
+   info - Don't invoke 'print' in production code - lib\main.dart:920:17 - avoid_print
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\main.dart:923:34 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\main.dart:924:41 - use_build_context_synchronously
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:955:39 - deprecated_member_use
+   info - Don't use 'BuildContext's across async gaps - lib\main.dart:1203:9 - use_build_context_synchronously
+   info - Don't invoke 'print' in production code - lib\main.dart:1215:7 - avoid_print
+   info - 'WillPopScope' is deprecated and shouldn't be used. Use PopScope instead. The Android predictive back feature will not work with WillPopScope. This feature was deprecated after v3.12.0-1.0.pre - lib\main.dart:1221:12 - deprecated_member_use
+   info - Don't invoke 'print' in production code - lib\main.dart:1229:13 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:1328:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:1340:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:1341:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:1348:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:1365:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:1373:7 - avoid_print
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:1424:45 - deprecated_member_use
+   info - Unnecessary use of 'toList' in a spread - lib\main.dart:1605:30 - unnecessary_to_list_in_spreads
+   info - Don't invoke 'print' in production code - lib\main.dart:1675:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:1762:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:1892:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:1900:7 - avoid_print
+   info - Unnecessary use of 'toList' in a spread - lib\main.dart:2104:24 - unnecessary_to_list_in_spreads
+warning - The value of the local variable 'serverVersion' isn't used - lib\main.dart:2156:20 - unused_local_variable
+warning - The value of the local variable 'buildNumberStr' isn't used - lib\main.dart:2158:20 - unused_local_variable
+warning - The value of the local variable 'changelog' isn't used - lib\main.dart:2160:26 - unused_local_variable
+   info - Don't invoke 'print' in production code - lib\main.dart:2194:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:2308:7 - avoid_print
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\main.dart:2387:35 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\main.dart:2388:42 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\main.dart:2395:42 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\main.dart:2402:40 - use_build_context_synchronously
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:2467:45 - deprecated_member_use
+   info - Don't use 'BuildContext's across async gaps - lib\main.dart:2655:38 - use_build_context_synchronously
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - lib\main.dart:2659:15 - deprecated_member_use
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - lib\main.dart:2678:15 - deprecated_member_use
+   info - Don't invoke 'print' in production code - lib\main.dart:2906:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:2913:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:2918:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:2922:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:2937:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:2953:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:2978:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:2988:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:2996:13 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:3045:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:3050:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:3080:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:3083:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:3213:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:3233:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:3246:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:3283:9 - avoid_print
+   info - Don't use 'BuildContext's across async gaps - lib\main.dart:3285:30 - use_build_context_synchronously
+   info - Don't invoke 'print' in production code - lib\main.dart:3290:7 - avoid_print
+   info - Don't use 'BuildContext's across async gaps - lib\main.dart:3291:28 - use_build_context_synchronously
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:3378:30 - deprecated_member_use
+   info - Don't invoke 'print' in production code - lib\main.dart:3436:7 - avoid_print
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:3558:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:3662:79 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:3696:61 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:3696:92 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:3700:59 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:3812:57 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:3881:65 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:3942:40 - deprecated_member_use
+   info - 'RawKeyboardListener' is deprecated and shouldn't be used. Use KeyboardListener instead. This feature was deprecated after v3.18.0-2.0.pre - lib\main.dart:3956:28 - deprecated_member_use
+   info - 'isShiftPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isShiftPressed instead. This feature was deprecated after v3.18.0-2.0.pre - lib\main.dart:3961:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:4152:53 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:4168:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:4168:79 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:4223:66 - deprecated_member_use
+   info - Don't invoke 'print' in production code - lib\main.dart:4390:7 - avoid_print
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:4447:41 - deprecated_member_use
+  error - Expected to find ';' - lib\main.dart:4480:7 - expected_token
+warning - Dead code - lib\main.dart:4480:8 - dead_code
+  error - Expected an identifier - lib\main.dart:4480:8 - missing_identifier
+  error - Expected to find ';' - lib\main.dart:4480:8 - expected_token
+  error - Unexpected text ';' - lib\main.dart:4480:8 - unexpected_token
+  error - Expected an identifier - lib\main.dart:4481:5 - missing_identifier
+  error - Unexpected text ';' - lib\main.dart:4481:5 - unexpected_token
+   info - Unnecessary empty statement - lib\main.dart:4481:6 - empty_statements
+   info - Don't invoke 'print' in production code - lib\main.dart:4528:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:4552:7 - avoid_print
+warning - The value of the field '_errorMessage' isn't used - lib\main.dart:4676:11 - unused_field
+   info - Don't invoke 'print' in production code - lib\main.dart:4687:13 - avoid_print
+warning - The '!' will have no effect because the receiver can't be null - lib\main.dart:4705:54 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null - lib\main.dart:4709:44 - unnecessary_non_null_assertion
+warning - The '!' will have no effect because the receiver can't be null - lib\main.dart:4710:37 - unnecessary_non_null_assertion
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\main.dart:4731:39 - deprecated_member_use
+   info - Don't invoke 'print' in production code - lib\main.dart:4735:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\main.dart:4827:7 - avoid_print
+warning - Unused import: 'package:package_info_plus/package_info_plus.dart' - lib\services.dart:3:8 - unused_import
+   info - The import of 'package:flutter_background_service_android/flutter_background_service_android.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter_background_service/flutter_background_service.dart' - lib\services.dart:6:8 - unnecessary_import
+   info - The imported package 'flutter_background_service_android' isn't a dependency of the importing package - lib\services.dart:6:8 - depend_on_referenced_packages
+   info - The prefix 'IO' isn't a lower_case_with_underscores identifier - lib\services.dart:8:60 - library_prefixes
+warning - Unused import: 'package:provider/provider.dart' - lib\services.dart:19:8 - unused_import
+   info - Don't invoke 'print' in production code - lib\services.dart:75:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:78:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:107:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:143:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:195:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:197:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:280:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:295:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:319:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:324:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:329:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:333:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:338:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:350:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:385:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:392:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:404:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:423:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:441:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:460:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:462:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:463:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:473:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:479:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:482:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:486:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:487:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:498:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:501:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:511:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:512:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:517:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:519:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:521:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:527:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:529:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:531:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:539:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:544:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:546:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:551:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:553:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:556:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:560:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:562:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:567:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:570:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:573:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:578:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:588:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:590:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:592:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:600:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:604:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:608:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:613:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:619:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:622:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:624:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:626:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:629:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:631:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:635:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:642:11 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:648:11 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:650:11 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:654:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:656:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:659:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:660:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:663:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:665:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:681:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:685:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:690:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:694:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:700:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:716:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:735:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:737:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:738:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:757:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:765:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:781:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:789:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:796:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:798:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:802:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:834:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:841:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:848:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services.dart:870:9 - avoid_print
+   info - Statements in a while should be enclosed in a block - lib\services.dart:878:28 - curly_braces_in_flow_control_structures
+   info - Statements in a while should be enclosed in a block - lib\services.dart:879:28 - curly_braces_in_flow_control_structures
+   info - Don't invoke 'print' in production code - lib\services.dart:889:7 - avoid_print
+warning - The include file 'package:flame_lint/analysis_options.yaml' in 'C:\CSChat\CSChat_Client\local_plugins\audioplayers_android\analysis_options.yaml' can't be found when analyzing 'C:\CSChat\CSChat_Client' - local_plugins\audioplayers_android\analysis_options.yaml:1:10 - include_file_not_found
+  error - Target of URI doesn't exist: 'package:integration_test/integration_test.dart' - local_plugins\shared_preferences_android\example\integration_test\shared_preferences_test.dart:7:8 - uri_does_not_exist
+  error - Undefined name 'IntegrationTestWidgetsFlutterBinding' - local_plugins\shared_preferences_android\example\integration_test\shared_preferences_test.dart:15:3 - undefined_identifier
+  error - Target of URI doesn't exist: 'package:integration_test/integration_test_driver.dart' - local_plugins\shared_preferences_android\example\test_driver\integration_test.dart:5:8 - uri_does_not_exist
+  error - The function 'integrationDriver' isn't defined - local_plugins\shared_preferences_android\example\test_driver\integration_test.dart:7:24 - undefined_function
+   info - Angle brackets will be interpreted as HTML - local_plugins\shared_preferences_android\lib\src\messages.g.dart:224:64 - unintended_html_in_doc_comment
+   info - Angle brackets will be interpreted as HTML - local_plugins\shared_preferences_android\lib\src\messages.g.dart:257:64 - unintended_html_in_doc_comment
+   info - Angle brackets will be interpreted as HTML - local_plugins\shared_preferences_android\lib\src\messages_async.g.dart:316:64 - unintended_html_in_doc_comment
+   info - Angle brackets will be interpreted as HTML - local_plugins\shared_preferences_android\lib\src\messages_async.g.dart:348:64 - unintended_html_in_doc_comment
+   info - Angle brackets will be interpreted as HTML - local_plugins\shared_preferences_android\lib\src\messages_async.g.dart:506:27 - unintended_html_in_doc_comment
+   info - Angle brackets will be interpreted as HTML - local_plugins\shared_preferences_android\lib\src\messages_async.g.dart:537:33 - unintended_html_in_doc_comment
+   info - The constant name 'DataStore' isn't a lowerCamelCase identifier - local_plugins\shared_preferences_android\lib\src\shared_preferences_async_android.dart:289:3 - constant_identifier_names
+   info - The constant name 'SharedPreferences' isn't a lowerCamelCase identifier - local_plugins\shared_preferences_android\lib\src\shared_preferences_async_android.dart:292:3 - constant_identifier_names
+  error - Target of URI doesn't exist: 'package:pigeon/pigeon.dart' - local_plugins\shared_preferences_android\pigeons\messages.dart:5:8 - uri_does_not_exist
+  error - Undefined name 'ConfigurePigeon' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages.dart:7:1 - undefined_annotation
+  error - The function 'PigeonOptions' isn't defined - local_plugins\shared_preferences_android\pigeons\messages.dart:8:3 - undefined_function
+  error - The function 'JavaOptions' isn't defined - local_plugins\shared_preferences_android\pigeons\messages.dart:12:18 - undefined_function
+  error - Undefined name 'HostApi' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages.dart:20:1 - undefined_annotation
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages.dart:23:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages.dart:23:20 - undefined_identifier
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages.dart:27:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages.dart:27:20 - undefined_identifier
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages.dart:31:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages.dart:31:20 - undefined_identifier
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages.dart:35:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages.dart:35:20 - undefined_identifier
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages.dart:39:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages.dart:39:20 - undefined_identifier
+   info - Angle brackets will be interpreted as HTML - local_plugins\shared_preferences_android\pigeons\messages.dart:42:64 - unintended_html_in_doc_comment
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages.dart:43:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages.dart:43:20 - undefined_identifier
+   info - Angle brackets will be interpreted as HTML - local_plugins\shared_preferences_android\pigeons\messages.dart:46:64 - unintended_html_in_doc_comment
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages.dart:49:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages.dart:49:20 - undefined_identifier
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages.dart:53:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages.dart:53:20 - undefined_identifier
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages.dart:57:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages.dart:57:20 - undefined_identifier
+  error - Target of URI doesn't exist: 'package:pigeon/pigeon.dart' - local_plugins\shared_preferences_android\pigeons\messages_async.dart:5:8 - uri_does_not_exist
+  error - Undefined name 'ConfigurePigeon' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages_async.dart:7:1 - undefined_annotation
+  error - The function 'PigeonOptions' isn't defined - local_plugins\shared_preferences_android\pigeons\messages_async.dart:8:3 - undefined_function
+  error - The function 'KotlinOptions' isn't defined - local_plugins\shared_preferences_android\pigeons\messages_async.dart:12:20 - undefined_function
+  error - Undefined name 'HostApi' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages_async.dart:51:1 - undefined_annotation
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages_async.dart:54:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages_async.dart:54:20 - undefined_identifier
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages_async.dart:58:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages_async.dart:58:20 - undefined_identifier
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages_async.dart:66:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages_async.dart:66:20 - undefined_identifier
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages_async.dart:70:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages_async.dart:70:20 - undefined_identifier
+   info - Angle brackets will be interpreted as HTML - local_plugins\shared_preferences_android\pigeons\messages_async.dart:77:64 - unintended_html_in_doc_comment
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages_async.dart:78:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages_async.dart:78:20 - undefined_identifier
+   info - Angle brackets will be interpreted as HTML - local_plugins\shared_preferences_android\pigeons\messages_async.dart:85:64 - unintended_html_in_doc_comment
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages_async.dart:88:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages_async.dart:88:20 - undefined_identifier
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages_async.dart:96:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages_async.dart:96:20 - undefined_identifier
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages_async.dart:100:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages_async.dart:100:20 - undefined_identifier
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages_async.dart:104:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages_async.dart:104:20 - undefined_identifier
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages_async.dart:108:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages_async.dart:108:20 - undefined_identifier
+   info - Angle brackets will be interpreted as HTML - local_plugins\shared_preferences_android\pigeons\messages_async.dart:111:27 - unintended_html_in_doc_comment
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages_async.dart:112:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages_async.dart:112:20 - undefined_identifier
+   info - Angle brackets will be interpreted as HTML - local_plugins\shared_preferences_android\pigeons\messages_async.dart:118:33 - unintended_html_in_doc_comment
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages_async.dart:119:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages_async.dart:119:20 - undefined_identifier
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages_async.dart:126:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages_async.dart:126:20 - undefined_identifier
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages_async.dart:130:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages_async.dart:130:20 - undefined_identifier
+  error - Undefined name 'TaskQueue' used as an annotation - local_plugins\shared_preferences_android\pigeons\messages_async.dart:137:3 - undefined_annotation
+  error - Undefined name 'TaskQueueType' - local_plugins\shared_preferences_android\pigeons\messages_async.dart:137:20 - undefined_identifier
+  error - The name 'MyApp' isn't a class - test\widget_test.dart:16:35 - creation_with_non_type
+

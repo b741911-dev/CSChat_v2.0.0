@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSChat - Secure Network Messenger</title>
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: #0a192f;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(10, 25, 47, 1) 0, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(17, 34, 64, 1) 0, transparent 50%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #e6f1ff;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .logo-img {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+            border-radius: 28px;
+            -webkit-mask-image: radial-gradient(circle at center, black 60%, transparent 100%);
+            mask-image: radial-gradient(circle at center, black 60%, transparent 100%);
+            filter: drop-shadow(0 0 20px rgba(100, 255, 218, 0.3));
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .header h1 {
+            font-size: 56px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #64ffda, #e6f1ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            /* Standard property added */
+            letter-spacing: -1px;
+        }
+
+        .header p {
+            font-size: 20px;
+            color: #8892b0;
+            letter-spacing: 0.5px;
+        }
+
+        .version-info {
+            background: rgba(17, 34, 64, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            border-radius: 12px;
+            padding: 15px 25px;
+            margin-bottom: 40px;
+            text-align: center;
+            color: #64ffda;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .version-info span {
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        .download-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: rgba(17, 34, 64, 0.8);
+            border: 1px solid rgba(48, 60, 85, 0.5);
+            border-radius: 16px;
+            padding: 40px;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: #64ffda;
+            box-shadow: 0 10px 30px -10px rgba(2, 12, 27, 0.7);
+        }
+
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            background: rgba(100, 255, 218, 0.1);
+            width: 80px;
+            height: 80px;
+            line-height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            color: #64ffda;
+        }
+
+        .card h2 {
+            font-size: 24px;
+            color: #e6f1ff;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            color: #8892b0;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .card-version {
+            display: inline-block;
+            background: rgba(100, 255, 218, 0.1);
+            color: #64ffda;
+            font-size: 13px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+        }
+
+        .download-btn {
+            display: block;
+            width: fit-content;
+            margin: 0 auto;
+            background: transparent;
+            color: #64ffda;
+            padding: 12px 30px;
+            border: 1px solid #64ffda;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+        }
+
+        .download-btn:hover {
+            background: rgba(100, 255, 218, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .changelog {
+            background: rgba(17, 34, 64, 0.8);
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid rgba(48, 60, 85, 0.5);
+        }
+
+        .changelog h3 {
+            color: #e6f1ff;
+            font-size: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .changelog h3::before {
+            content: "⚡";
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .changelog ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .changelog li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(48, 60, 85, 0.3);
+            color: #8892b0;
+            display: flex;
+            align-items: flex-start;
+            font-size: 15px;
+        }
+
+        .changelog li:last-child {
+            border-bottom: none;
+        }
+
+        .changelog li:before {
+            content: "▹";
+            color: #64ffda;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 42px;
+            }
+
+            .card {
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="/logo.png" alt="CSChat Logo" class="logo-img">
+            <h1>CSChat</h1>
+            <p>Secure Standalone Network Messenger</p>
+        </div>
+
+        <div class="version-info" id="versionInfo">
+            <span>Checking latest version...</span>
+        </div>
+
+        <div class="download-cards">
+            <div class="card">
+                <div class="card-icon">📱</div>
+                <h2>Android</h2>
+                <p>Secure Client for Mobile</p>
+                <div class="card-version" id="androidVersion">Loading...</div>
+                <a href="/downloads/cschat_and_v1.0.0.apk" class="download-btn" id="androidDownloadBtn"
+                    download>Download
+                    APK</a>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">💻</div>
+                <h2>Windows</h2>
+                <p>Desktop Application</p>
+                <div class="card-version" id="windowsVersion">Loading...</div>
+                <a href="/downloads/cschat_windows_setup.exe" class="download-btn" id="windowsDownloadBtn"
+                    download>Download
+                    Installer (EXE)</a>
+            </div>
+        </div>
+
+        <div class="changelog">
+            <h3>Release Notes</h3>
+            <ul id="changelogList">
+                <li>Loading updates...</li>
+            </ul>
+            <div
+                style="margin-top: 25px; border-top: 1px solid rgba(100,255,218,0.1); padding-top: 20px; text-align: center;">
+                <a href="/manual.html" class="download-btn" style="border-style: dashed; width: 100%; max-width: none;">
+                    📖 View CSChat User Manual
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        fetch('/version.json?t=' + new Date().getTime())
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('versionInfo').innerHTML =
+                    `<span>Latest Build Date : ${data.releaseDate}</span>`;
+
+                const changelogList = document.getElementById('changelogList');
+                changelogList.innerHTML = '';
+                data.changelog.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    changelogList.appendChild(li);
+                });
+
+                // Update Platform Versions
+                if (data.platforms) {
+                    if (data.platforms.android) {
+                        document.getElementById('androidVersion').textContent = `Latest Build v${data.platforms.android.version}`;
+                    }
+                    if (data.platforms.windows) {
+                        document.getElementById('windowsVersion').textContent = `Latest Build v${data.platforms.windows.version}`;
+                    }
+                } else {
+                    // Fallback
+                    document.getElementById('androidVersion').textContent = `Latest Build v${data.version}`;
+                    document.getElementById('windowsVersion').textContent = `Latest Build v${data.version}`;
+                }
+
+                if (data.downloadUrl) {
+                    if (data.platforms && data.platforms.android) {
+                        const androidBtn = document.getElementById('androidDownloadBtn');
+                        androidBtn.href = `/downloads/cschat_and_v${data.platforms.android.version}.apk`;
+                        androidBtn.setAttribute('download', `cschat_and_v${data.platforms.android.version}.apk`);
+                    }
+                    if (data.platforms && data.platforms.windows) {
+                        const winBtn = document.getElementById('windowsDownloadBtn');
+                        winBtn.href = `/downloads/cschat_win_v${data.platforms.windows.version}.exe`;
+                        winBtn.setAttribute('download', `cschat_win_v${data.platforms.windows.version}.exe`);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Failed to load version info:', error);
+                document.getElementById('versionInfo').innerHTML =
+                    '<span>System Status: Version service unavailable</span>';
+            });
+    </script>
+</body>
+
+</html>

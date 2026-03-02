@@ -1,0 +1,95 @@
+데이터베이스 초기화 완료: chat.db
+서버 기동: http://0.0.0.0:3001
+PeerServer running on path /peerjs
+서버 시간 (타임존: Asia/Seoul): 2026-03-02 12:04:15 (KST)
+[Upgrade] URL: /socket.io/?EIO=4&transport=websocket
+[Socket] 새 연결 발생: R4Mz6iyGscn7Z3WEAAAB (IP: 192.168.0.46)
+[Socket] register_user 수신: userId=21, deviceId=AP3A.240905.015.A2
+[Socket] 유저 21의 참여 방 개수: 2
+[Socket] 유저 21가 room_9에 자동 입장함 (register)
+[Socket] 유저 21가 room_42에 자동 입장함 (register)
+[Socket] 유저 21 등록 완료 (Socket ID: R4Mz6iyGscn7Z3WEAAAB)
+[Socket] 유저 21 온라인 상태 브로드캐스트
+[Socket] Socket R4Mz6iyGscn7Z3WEAAAB가 room_9에 명시적으로 입장함
+[HTTP Req] GET /api/unread/total?userId=21 (IP: 192.168.0.46) (Upgrade: undefined)
+[Upgrade] URL: /socket.io/?EIO=4&transport=websocket
+[Socket] 새 연결 발생: QtLtB3gEVK85kDqIAAAD (IP: 192.168.0.18)
+[Socket] Socket QtLtB3gEVK85kDqIAAAD가 room_9에 명시적으로 입장함
+[Socket] mark_as_read 수신: roomId=9, userId=20
+[Socket] 그룹 읽음차감: 0건 (User: 20, Range: 2026-03-02 11:55:52 ~ 2026-03-02 12:04:16)
+[Socket] messages_read 브로드캐스트 완료: room_9
+[Socket] register_user 수신: userId=20, deviceId=BP2A.250605.031.A3
+[Socket] 유저 20의 참여 방 개수: 2
+[Socket] 유저 20가 room_9에 자동 입장함 (register)
+[Socket] 유저 20가 room_41에 자동 입장함 (register)
+[Socket] 유저 20 등록 완료 (Socket ID: QtLtB3gEVK85kDqIAAAD)
+[Socket] 유저 20 온라인 상태 브로드캐스트
+[Socket] Socket QtLtB3gEVK85kDqIAAAD가 room_9에 명시적으로 입장함
+[HTTP Req] GET /api/unread/total?userId=20 (IP: 192.168.0.18) (Upgrade: undefined)
+[Upgrade] URL: /socket.io/?EIO=4&transport=websocket
+[Socket] 새 연결 발생: FRqRZxM22RygsUSvAAAF (IP: 10.207.37.2)
+[Socket] register_user 수신: userId=10, deviceId=BP2A.250605.031.A3
+[Socket] 유저 10의 참여 방 개수: 0
+[Socket] 유저 10 등록 완료 (Socket ID: FRqRZxM22RygsUSvAAAF)
+[Socket] 유저 10 온라인 상태 브로드캐스트
+[HTTP Req] GET /api/rooms/9/messages?userId=20&limit=20&offset=0&t=1772420657571 (IP: 192.168.0.18) (Upgrade: undefined)
+[API] 메시지 조회 (Room: 9, User: 20) - 20건
+[Upgrade] URL: /socket.io/?EIO=4&transport=websocket
+[Socket] 새 연결 발생: 9UPYiXQBggl0SvfZAAAH (IP: 192.168.0.71)
+[Upgrade] URL: /socket.io/?EIO=4&transport=websocket
+[Socket] 새 연결 발생: HegV5DCggCaoCJqeAAAJ (IP: 192.168.0.43)
+[Socket] Socket 9UPYiXQBggl0SvfZAAAH가 room_9에 명시적으로 입장함
+[Socket] Socket HegV5DCggCaoCJqeAAAJ가 room_9에 명시적으로 입장함
+[HTTP Req] GET /api/unread/total?userId=19 (IP: 192.168.0.43) (Upgrade: undefined)
+[Socket] mark_as_read 수신: roomId=9, userId=19
+[Socket] 그룹 읽음차감: 0건 (User: 19, Range: 2026-03-02 12:03:47 ~ 2026-03-02 12:04:17)
+[Socket] messages_read 브로드캐스트 완료: room_9
+[HTTP Req] GET /api/unread/total?userId=19 (IP: 192.168.0.43) (Upgrade: undefined)
+[Socket] register_user 수신: userId=19, deviceId={C0D43105-C266-42F9-B4C3-02DCF1EFE5D5}
+[Socket] 유저 19의 참여 방 개수: 2
+[Socket] 유저 19가 room_9에 자동 입장함 (register)
+[Socket] 유저 19가 room_42에 자동 입장함 (register)
+[Socket] 유저 19 등록 완료 (Socket ID: HegV5DCggCaoCJqeAAAJ)
+[Socket] 유저 19 온라인 상태 브로드캐스트
+[Socket] Socket HegV5DCggCaoCJqeAAAJ가 room_9에 명시적으로 입장함
+[Socket] mark_as_read 수신: roomId=9, userId=19
+[Socket] 그룹 읽음차감: 0건 (User: 19, Range: 2026-03-02 12:04:17 ~ 2026-03-02 12:04:17)
+[Socket] messages_read 브로드캐스트 완료: room_9
+[Socket] mark_as_read 수신: roomId=9, userId=22
+[Socket] 그룹 읽음차감: 0건 (User: 22, Range: 2026-03-02 11:55:52 ~ 2026-03-02 12:04:17)
+[Socket] messages_read 브로드캐스트 완료: room_9
+[Socket] register_user 수신: userId=22, deviceId=PPR1.180610.011
+[Socket] 유저 22의 참여 방 개수: 1
+[Socket] 유저 22가 room_9에 자동 입장함 (register)
+[Socket] 유저 22 등록 완료 (Socket ID: 9UPYiXQBggl0SvfZAAAH)
+[Socket] 유저 22 온라인 상태 브로드캐스트
+[Socket] Socket 9UPYiXQBggl0SvfZAAAH가 room_9에 명시적으로 입장함
+[HTTP Req] GET /api/unread/total?userId=22 (IP: 192.168.0.71) (Upgrade: undefined)
+[HTTP Req] GET /api/rooms/9/messages?userId=19&limit=20&offset=0&t=1772420657653 (IP: 192.168.0.43) (Upgrade: undefined)
+[HTTP Req] GET /api/rooms/9/messages?userId=19&limit=20&offset=0&t=1772420657655 (IP: 192.168.0.43) (Upgrade: undefined)
+[API] 메시지 조회 (Room: 9, User: 19) - 20건
+[HTTP Req] GET /api/rooms/9/messages?userId=19&limit=20&offset=0&t=1772420657669 (IP: 192.168.0.43) (Upgrade: undefined)
+[HTTP Req] GET /api/rooms/9/messages?userId=22&limit=20&offset=0&t=1772420622421 (IP: 192.168.0.71) (Upgrade: undefined)
+[HTTP Req] GET /api/rooms/9/messages?userId=22&limit=20&offset=0&t=1772420622422 (IP: 192.168.0.71) (Upgrade: undefined)
+[HTTP Req] GET /api/rooms/9/messages?userId=20&limit=20&offset=0&t=1772420658142 (IP: 192.168.0.18) (Upgrade: undefined)
+[HTTP Req] GET /api/rooms/9/messages?userId=20&limit=20&offset=0&t=1772420658149 (IP: 192.168.0.18) (Upgrade: undefined)
+[HTTP Req] GET /api/rooms/9/messages?userId=20&limit=20&offset=0&t=1772420658157 (IP: 192.168.0.18) (Upgrade: undefined)
+[API] 메시지 조회 (Room: 9, User: 19) - 20건
+[API] 메시지 조회 (Room: 9, User: 19) - 20건
+[API] 메시지 조회 (Room: 9, User: 22) - 20건
+[API] 메시지 조회 (Room: 9, User: 22) - 20건
+[API] 메시지 조회 (Room: 9, User: 20) - 20건
+[API] 메시지 조회 (Room: 9, User: 20) - 20건
+[HTTP Req] GET /api/rooms/9/messages?userId=22&limit=20&offset=0&t=1772420622434 (IP: 192.168.0.71) (Upgrade: undefined)
+[API] 메시지 조회 (Room: 9, User: 20) - 20건
+[API] 메시지 조회 (Room: 9, User: 22) - 20건
+[Socket] mark_as_read 수신: roomId=9, userId=22
+[Socket] 그룹 읽음차감: 0건 (User: 22, Range: 2026-03-02 12:04:17 ~ 2026-03-02 12:04:20)
+[Socket] messages_read 브로드캐스트 완료: room_9
+[HTTP Req] GET /api/unread/total?userId=22 (IP: 192.168.0.71) (Upgrade: undefined)
+[HTTP Req] GET /api/rooms/9/messages?userId=19&limit=20&offset=0&t=1772420660708 (IP: 192.168.0.43) (Upgrade: undefined)
+[API] 메시지 조회 (Room: 9, User: 19) - 20건
+[HTTP Req] GET /api/rooms/9/messages?userId=22&limit=20&offset=0&t=1772420625475 (IP: 192.168.0.71) (Upgrade: undefined)
+[API] 메시지 조회 (Room: 9, User: 22) - 20건
+[HTTP Req] GET /api/rooms/9/messages?userId=20&limit=20&offset=0&t=1772420661281 (IP: 192.168.0.18) (Upgrade: undefined)
+[API] 메시지 조회 (Room: 9, User: 20) - 20건

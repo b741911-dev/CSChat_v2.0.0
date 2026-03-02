@@ -1,0 +1,28 @@
+{
+  "version": "2.0.0",
+  "buildNumber": 228,
+  "releaseDate": "2026-03-02",
+  "platforms": {
+    "android": {
+      "version": "2.0.0",
+      "buildNumber": 228,
+      "changelog": [
+        "Windows 버전과 동기화"
+      ]
+    },
+    "windows": {
+      "version": "2.0.0",
+      "buildNumber": 228,
+      "changelog": [
+        "윈도우 인스톨러 배포본에 video_player_win 플러그인 DLL 파일이 누락되어있던 설치 오류 수정 패치"
+      ]
+    }
+  },
+  "changelog": [
+    "이미지 미리보기 및 파일 다운로드 기능이 연동되었습니다."
+  ],
+  "downloadUrl": {
+    "android": "http://192.168.0.43:3001/api/ota/download",
+    "windows": "http://192.168.0.43:3001/api/ota/download"
+  }
+}

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSChat 관리자 - 로그인</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/logo.png">
+    <style>
+        :root {
+            --primary: #64ffda;
+            --primary-hover: #4cd6b3;
+            --bg: #0a192f;
+            --card-bg: rgba(17, 34, 64, 0.7);
+            --text: #e6f1ff;
+            --text-muted: #8892b0;
+            --glass-border: rgba(100, 255, 218, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(10, 25, 47, 1) 0, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(17, 34, 64, 1) 0, transparent 50%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            min-height: 520px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            box-shadow: 0 20px 50px rgba(2, 12, 27, 0.8);
+            animation: slideUp 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem auto;
+            border-radius: 20px;
+            -webkit-mask-image: radial-gradient(circle at center, black 60%, transparent 100%);
+            mask-image: radial-gradient(circle at center, black 60%, transparent 100%);
+            filter: drop-shadow(0 0 10px rgba(100, 255, 218, 0.3));
+            display: block;
+        }
+
+        h1 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+            white-space: nowrap;
+            height: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 2.5rem;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+            height: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Language Toggle */
+        .lang-toggle {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(17, 34, 64, 0.5);
+            padding: 0.3rem;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .lang-btn {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: 0.3s;
+            color: var(--text-muted);
+            border: none;
+            background: transparent;
+            font-weight: 600;
+        }
+
+        .lang-btn.active {
+            background: var(--primary);
+            color: var(--bg);
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            height: 1rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(2, 12, 27, 0.5);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 15px rgba(100, 255, 218, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+            margin-top: 1rem;
+        }
+
+        .btn:hover {
+            background: rgba(100, 255, 218, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .error-msg {
+            color: #ff5f56;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLang('ko')">KO</button>
+        <button class="lang-btn" onclick="setLang('en')">EN</button>
+    </div>
+
+    <div class="login-card">
+        <img src="/logo.png" alt="Logo" class="logo">
+        <h1 id="mainTitle">단독망 메신저 시스템 관리자</h1>
+        <p id="subTitle" class="subtitle">보안 인증 필요</p>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label id="labelId">아이디</label>
+                <input type="text" id="username" placeholder="관리자 아이디 입력" required autofocus>
+            </div>
+            <div class="form-group">
+                <label id="labelPw">비밀번호</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+            <button type="submit" id="submitBtn" class="btn">시스템 접속</button>
+            <div id="errorMsg" class="error-msg">인증 정보가 올바르지 않습니다.</div>
+        </form>
+    </div>
+
+    <script>
+        const translations = {
+            ko: {
+                title: '단독망 메신저 시스템 관리자',
+                subtitle: '보안 인증 필요',
+                labelId: '아이디',
+                labelPw: '비밀번호',
+                placeholderId: '관리자 아이디 입력',
+                submit: '시스템 접속',
+                errorAuth: '관리자 권한이 없습니다.',
+                errorLogin: '아이디 또는 비밀번호가 틀렸습니다.',
+                errorNetwork: '서버 통신 오류가 발생했습니다.'
+            },
+            en: {
+                title: 'Isolated Network Messenger Admin',
+                subtitle: 'AUTHENTICATION REQUIRED',
+                labelId: 'USERNAME',
+                labelPw: 'PASSWORD',
+                placeholderId: 'Enter admin ID',
+                submit: 'INITIALIZE CONNECTION',
+                errorAuth: 'No administrator privileges.',
+                errorLogin: 'Invalid username or password.',
+                errorNetwork: 'Server communication error occurred.'
+            }
+        };
+
+        let currentLang = 'ko';
+
+        function setLang(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.toLowerCase() === lang);
+            });
+
+            const t = translations[lang];
+            document.getElementById('mainTitle').textContent = t.title;
+            document.getElementById('subTitle').textContent = t.subtitle;
+            document.getElementById('labelId').textContent = t.labelId;
+            document.getElementById('labelPw').textContent = t.labelPw;
+            document.getElementById('username').placeholder = t.placeholderId;
+            document.getElementById('submitBtn').textContent = t.submit;
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+            const t = translations[currentLang];
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.user.isAdmin) {
+                    sessionStorage.setItem('adminToken', 'verified');
+                    localStorage.setItem('adminId', data.user.id);
+                    localStorage.setItem('adminLang', currentLang);
+                    location.href = '/admin/index.html';
+                } else {
+                    errorMsg.style.display = 'block';
+                    errorMsg.textContent = data.user && !data.user.isAdmin ? t.errorAuth : t.errorLogin;
+                }
+            } catch (err) {
+                errorMsg.style.display = 'block';
+                errorMsg.textContent = t.errorNetwork;
+            }
+        });
+
+        // Initialize language on page load
+        setLang(localStorage.getItem('adminLang') || 'ko');
+    </script>
+</body>
+
+</html>
