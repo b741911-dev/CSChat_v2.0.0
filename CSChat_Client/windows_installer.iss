@@ -26,7 +26,7 @@ DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 OutputDir=c:\CSChat\CSChat_Client\build\windows\installer
-OutputBaseFilename=cschat_win_v2.0
+OutputBaseFilename=cschat_win_v2.0.0
 SetupIconFile=c:\CSChat\CSChat_Client\windows\runner\resources\app_icon.ico
 Compression=lzma
 SolidCompression=yes
