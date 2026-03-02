@@ -234,10 +234,11 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
             const thumbName = req.file.filename.split('.')[0] + '_thumb.jpg';
             const videoPath = path.join(__dirname, 'public', 'uploads', req.file.filename);
             const thumbPath = path.join(__dirname, 'public', 'uploads', thumbName);
+            const ffmpegCmd = path.join(__dirname, 'bin', 'ffmpeg.exe');
 
             // [Important] public 폴더 경로 포함 (uploads가 public 안에 있음)
             // 1. FFmpeg를 사용하여 첫 프레임 썸네일 생성
-            exec(`ffmpeg -i "${videoPath}" -ss 00:00:00.100 -vframes 1 "${thumbPath}"`, (error) => {
+            exec(`"${ffmpegCmd}" -i "${videoPath}" -ss 00:00:00.100 -vframes 1 "${thumbPath}"`, (error) => {
                 if (error) {
                     console.error('[Upload] 썸네일 생성 실패:', error);
                 } else {
@@ -247,7 +248,7 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
                 // 2. 모바일 스트리밍 무한 버퍼링 방지를 위한 faststart 및 고속 H.264 인코딩 (HEVC 코덱 앱 프리징 방지)
                 const faststartTempPath = path.join(__dirname, 'public', 'uploads', 'fast_' + req.file.filename);
                 // Windows 무한로딩 / Android 블랙 스크린 해결: 하드웨어 가속 호환성 극대화 (Baseline/Level3.0/짝수해상도), 소리 작아짐 방지 오디오 카피
-                exec(`ffmpeg -i "${videoPath}" -c:v libx264 -profile:v baseline -level 3.0 -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -preset veryfast -crf 28 -c:a copy -movflags +faststart "${faststartTempPath}"`, (fastError) => {
+                exec(`"${ffmpegCmd}" -i "${videoPath}" -c:v libx264 -profile:v baseline -level 3.0 -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -preset veryfast -crf 28 -c:a copy -movflags +faststart "${faststartTempPath}"`, (fastError) => {
                     if (!fastError) {
                         try {
                             fs.unlinkSync(videoPath);

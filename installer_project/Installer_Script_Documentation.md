@@ -6,7 +6,7 @@
 ## 1. 메타데이터 및 설치 설정 `[Setup]`
 인스톨러의 핵심 속성을 정의합니다.
 - **AppName**: `CSChat Server` (애플리케이션 이름)
-- **AppVersion**: `1.0.0` (버전)
+- **AppVersion**: `2.0.0` (버전)
 - **DefaultDirName**: `C:\Choeun\CSChat_Server` (기본 설치 경로)
 - **PrivilegesRequired**: `admin` (설치 시 관리자 권한 필요)
 - **Compression**: `lzma/solid` (고효율 압축 사용)

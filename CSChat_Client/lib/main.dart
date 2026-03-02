@@ -3214,6 +3214,28 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver, Ti
     }
   }
 
+  // [Added] 갤러리 미디어(사진/동영상 통합) 선택 로직
+  Future<void> _pickGalleryMedia() async {
+    try {
+      final XFile? media = await _picker.pickMedia(
+        imageQuality: 70, // 사진일 경우 용량 최적화
+      );
+
+      if (media != null) {
+        String type = 'file';
+        final extension = media.path.toLowerCase();
+        if (extension.endsWith('.jpg') || extension.endsWith('.jpeg') || extension.endsWith('.png') || extension.endsWith('.gif') || extension.endsWith('.webp') || extension.endsWith('.heic')) {
+          type = 'image';
+        } else if (extension.endsWith('.mp4') || extension.endsWith('.mov') || extension.endsWith('.avi') || extension.endsWith('.mkv') || extension.endsWith('.webm')) {
+          type = 'video';
+        }
+        await _uploadAndSendFile(media.path, type);
+      }
+    } catch (e) {
+      print('[ChatScreen] 갤러리/미디어 선택 오류: $e');
+    }
+  }
+
   // [Added] 동영상 촬영 로직
   Future<void> _pickVideo() async {
     try {
@@ -3329,7 +3351,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver, Ti
                   color: Colors.purple,
                   onTap: () {
                     Navigator.pop(context);
-                    _pickImage(ImageSource.gallery);
+                    _pickGalleryMedia();
                   },
                 ),
                 _buildAttachmentItem(

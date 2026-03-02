@@ -3,11 +3,11 @@
 
 [Setup]
 AppName=CSChat Server
-AppVersion=1.0.0
-AppPublisher=CHOEUNSYSTEM Co., Ltd.
+AppVersion=2.0.0
+AppPublisher=(주)조은시스템
 DefaultDirName=C:\Choeun\CSChat_Server
 DefaultGroupName=CSChat Server
-OutputBaseFilename=CSChat_Win_Server_v1.0.0_install
+OutputBaseFilename=CSChat_Win_Server_v2.0.0_install
 OutputDir=.
 Compression=lzma
 SolidCompression=yes

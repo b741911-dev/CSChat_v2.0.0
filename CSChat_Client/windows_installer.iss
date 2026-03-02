@@ -2,8 +2,8 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "CSChat"
-#define MyAppVersion "2.0.0.228"
-#define MyAppPublisher "CSChat Team"
+#define MyAppVersion "2.0.0"
+#define MyAppPublisher "(주)조은시스템"
 #define MyAppURL "http://192.168.0.43:3001"
 #define MyAppExeName "cschat_client.exe"
 
@@ -21,12 +21,12 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={autopf}\{#MyAppName}
+DefaultDirName=C:\Choeun\CSChat_Client
 DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 OutputDir=c:\CSChat\CSChat_Client\build\windows\installer
-OutputBaseFilename=cschat_win_v2.0.0
+OutputBaseFilename=cschat_win_v2.0
 SetupIconFile=c:\CSChat\CSChat_Client\windows\runner\resources\app_icon.ico
 Compression=lzma
 SolidCompression=yes
